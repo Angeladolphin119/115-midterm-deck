@@ -178,6 +178,13 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
 .photo-caption:focus{background:rgba(224,164,88,.1);border-radius:6px;}
 #photoBtn{background:rgba(255,255,255,.12);}
 #photoBtn:hover{background:rgba(255,255,255,.25);}
+#fsBtn{background:rgba(255,255,255,.12);}
+#fsBtn:hover{background:rgba(255,255,255,.25);}
+
+body.fs-mode #navbar{opacity:0;transition:opacity .35s ease;pointer-events:none;}
+body.fs-mode #navbar.show{opacity:1;pointer-events:auto;}
+body.fs-mode #sbToggle{opacity:0;transition:opacity .35s ease;}
+body.fs-mode #sbToggle.show{opacity:1;}
 
 @media (max-width:900px){
   .slide{padding:36px 28px 90px;}
@@ -238,6 +245,7 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
         <button id="photoBtn">🖼️ 插入照片</button>
         <input type="file" id="photoInput" accept="image/*" hidden>
         <button id="exportBtn">⬇ 下載 PPT</button>
+        <button id="fsBtn" title="全螢幕（進入後工具列會自動隱藏，滑鼠移到畫面下方即可喚出）">⛶ 全螢幕</button>
         <div id="counter">1 / 24</div>
       </div>
     </div>
@@ -918,6 +926,39 @@ deck.addEventListener('touchend', e=>{
   touchX=null;
 });
 render();
+
+// ===== FULLSCREEN with auto-hiding toolbar =====
+const fsBtn = document.getElementById('fsBtn');
+const navbarEl = document.getElementById('navbar');
+const sbToggleEl = document.getElementById('sbToggle');
+let fsHideTimer = null;
+function fsShowControls(){
+  navbarEl.classList.add('show');
+  sbToggleEl.classList.add('show');
+  clearTimeout(fsHideTimer);
+  fsHideTimer = setTimeout(()=>{
+    navbarEl.classList.remove('show');
+    sbToggleEl.classList.remove('show');
+  }, 1800);
+}
+fsBtn.addEventListener('click', ()=>{
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }else{
+    document.exitFullscreen().catch(()=>{});
+  }
+});
+document.addEventListener('fullscreenchange', ()=>{
+  const isFs = !!document.fullscreenElement;
+  document.body.classList.toggle('fs-mode', isFs);
+  fsBtn.textContent = isFs ? '⛶ 退出全螢幕' : '⛶ 全螢幕';
+  if(isFs) fsShowControls();
+  else clearTimeout(fsHideTimer);
+});
+document.addEventListener('mousemove', (e)=>{
+  if(!document.body.classList.contains('fs-mode')) return;
+  if(e.clientY > window.innerHeight - 140 || e.clientX < 60) fsShowControls();
+});
 
 // ===== PHOTO INSERT (any collaborator can attach images; synced like text) =====
 function resizeImageToDataURL(file, maxDim, quality){
