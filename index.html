@@ -180,6 +180,10 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
 #photoBtn:hover{background:rgba(255,255,255,.25);}
 #fsBtn{background:rgba(255,255,255,.12);}
 #fsBtn:hover{background:rgba(255,255,255,.25);}
+#undoBtn{background:rgba(255,255,255,.12);}
+#undoBtn:hover:not(:disabled){background:rgba(255,255,255,.25);}
+#undoBtn:disabled{opacity:.35;cursor:default;}
+#undoBtn.flash{background:var(--accent);color:#1c1f2e;}
 
 body.fs-mode #navbar{opacity:0;transition:opacity .35s ease;pointer-events:none;}
 body.fs-mode #navbar.show{opacity:1;pointer-events:auto;}
@@ -237,6 +241,7 @@ body.fs-mode #sbToggle.show{opacity:1;}
       <div class="btns">
         <button id="prevBtn">‹ 上一頁</button>
         <button id="nextBtn">下一頁 ›</button>
+        <button id="undoBtn" disabled title="復原最近一次的刪除操作（照片或提醒框）">↩ 復原刪除</button>
         <span id="presencePill" class="offline"><span class="dot"></span><span id="presenceText">未連線同步</span></span>
         <span id="saveStatus">已自動儲存編輯內容</span>
       </div>
@@ -394,7 +399,9 @@ SLIDES.push(`
         <div class="pbar-row"><span class="pbar-label">${n}</span><span class="pbar-pct">${p}%</span></div>
         <div class="progressbar"><div style="width:${p}%;"></div></div>
       </div>`).join('')}
-    <div class="stat-box accent" style="margin-top:18px;display:inline-block;"><div class="num">53%</div><div class="lbl">累計總進度（期中查核點）</div></div>
+    <div class="stat-row" style="margin-top:18px;">
+      <div class="stat-box accent" style="flex:0 0 260px;"><div class="num">53%</div><div class="lbl">累計總進度（期中查核點）</div></div>
+    </div>
   </div>
 </div>`);
 
@@ -1009,6 +1016,35 @@ function insertPhotoIntoSlide(slideEl, dataUrl){
   content.appendChild(wrap);
   content.dispatchEvent(new Event('input', {bubbles:true}));
 }
+// ---- undo-last-delete safety net ----
+const undoBtn = document.getElementById('undoBtn');
+let lastDeleted = null; // { slideIndex, html }
+function recordBeforeDelete(slideEl){
+  const i = Number(slideEl.dataset.index);
+  lastDeleted = { slideIndex: i, html: slideEl.innerHTML };
+  undoBtn.disabled = false;
+}
+function undoLastDelete(){
+  if(!lastDeleted) return;
+  const slideEl = slideEls[lastDeleted.slideIndex];
+  slideEl.innerHTML = lastDeleted.html;
+  applyEditable(slideEl);
+  updateSidebarLabel(lastDeleted.slideIndex);
+  slideEl.dispatchEvent(new Event('input', {bubbles:true}));
+  lastDeleted = null;
+  undoBtn.disabled = true;
+  undoBtn.classList.add('flash');
+  setTimeout(()=>undoBtn.classList.remove('flash'), 700);
+}
+undoBtn.addEventListener('click', undoLastDelete);
+document.addEventListener('keydown', (e)=>{
+  const isTyping = document.activeElement && document.activeElement.isContentEditable;
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z' && !isTyping){
+    e.preventDefault();
+    undoLastDelete();
+  }
+});
+
 // Delegated handlers so buttons keep working even after their markup arrives via a
 // remote Firebase sync (innerHTML replacement does not carry over JS listeners).
 deck.addEventListener('click', (e)=>{
@@ -1016,6 +1052,7 @@ deck.addEventListener('click', (e)=>{
   if(delPhoto){
     const wrap = delPhoto.closest('.inserted-photo-wrap');
     const slideEl = delPhoto.closest('.slide');
+    if(slideEl) recordBeforeDelete(slideEl);
     if(wrap) wrap.remove();
     if(slideEl) slideEl.dispatchEvent(new Event('input', {bubbles:true}));
     return;
@@ -1024,6 +1061,7 @@ deck.addEventListener('click', (e)=>{
   if(closeNote){
     const note = closeNote.closest('.photonote');
     const slideEl = closeNote.closest('.slide');
+    if(slideEl) recordBeforeDelete(slideEl);
     if(note) note.remove();
     if(slideEl) slideEl.dispatchEvent(new Event('input', {bubbles:true}));
     return;
