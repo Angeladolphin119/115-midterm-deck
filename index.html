@@ -111,10 +111,12 @@ table.gov tr:nth-child(even) td{background:#f8f9fd;}
 .tstep .tdesc{font-size:12.5px;color:var(--text-muted);}
 .tstep:not(:last-child)::after{content:"";position:absolute;top:20px;right:-8px;width:16px;height:2px;background:#cfd5ea;}
 
-.photonote{margin-top:18px;border:2px dashed var(--accent);border-radius:14px;padding:18px 22px;background:#fff7ec;display:flex;gap:16px;align-items:flex-start;}
+.photonote{position:relative;margin-top:18px;border:2px dashed var(--accent);border-radius:14px;padding:18px 22px;background:#fff7ec;display:flex;gap:16px;align-items:flex-start;}
 .photonote .pn-icon{font-size:26px;}
 .photonote b{color:#a36a16;}
 .photonote .pn-text{font-size:13.5px;color:#6b4a14;line-height:1.6;}
+.photonote-close{position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;background:rgba(163,106,22,.15);color:#a36a16;border:none;cursor:pointer;font-size:13px;line-height:1;}
+.photonote-close:hover{background:rgba(163,106,22,.3);}
 
 .quote-block{background:var(--card-bg);border-radius:14px;padding:20px 24px;font-size:14.5px;color:var(--text-dark);line-height:1.75;}
 
@@ -167,10 +169,13 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
 .slide:not(.dark) .footer-tag{color:#9aa1ba;}
 
 /* inserted photos */
-.inserted-photo-wrap{position:relative;display:inline-block;max-width:100%;margin-top:14px;}
+.inserted-photo-wrap{position:relative;display:block;max-width:420px;margin-top:14px;}
 .inserted-photo-wrap img.inserted-photo{max-width:100%;display:block;border-radius:10px;box-shadow:0 2px 12px rgba(20,26,69,.18);}
 .photo-del-btn{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;cursor:pointer;font-size:12px;line-height:1;}
 .photo-del-btn:hover{background:rgba(0,0,0,.8);}
+.photo-caption{margin-top:6px;font-size:12.5px;color:var(--text-muted);min-height:1.4em;outline:none;line-height:1.5;}
+.photo-caption:empty:before{content:attr(data-placeholder);color:#b7bdd1;}
+.photo-caption:focus{background:rgba(224,164,88,.1);border-radius:6px;}
 #photoBtn{background:rgba(255,255,255,.12);}
 #photoBtn:hover{background:rgba(255,255,255,.25);}
 
@@ -389,7 +394,7 @@ SLIDES.push(`
 SLIDES.push(`
 <div class="slide">
   <div class="eyebrow">115年度期中審查</div>
-  <h1>期中標準1：研討會與行前會議</h1>
+  <h1>期中標準 1-1：研討會與行前會議</h1>
   <h2 class="subtitle">期中標準：辦理實地查核缺失案例研討會1場次，協辦查核行前會議1場次。</h2>
   <div class="content">
     <div class="cardgrid cols-2">
@@ -403,6 +408,7 @@ SLIDES.push(`
       </div>
     </div>
     <div class="photonote">
+      <button type="button" class="photonote-close" contenteditable="false" title="完成後可移除此提醒">✕</button>
       <div class="pn-icon">📷</div>
       <div>
         <b>建議插入位置：研討會與行前會議照片</b>
@@ -416,7 +422,7 @@ SLIDES.push(`
 SLIDES.push(`
 <div class="slide">
   <div class="eyebrow">115年度期中審查</div>
-  <h1>期中標準2：標準案例彙整</h1>
+  <h1>期中標準 1-2：標準案例彙整</h1>
   <h2 class="subtitle">期中標準：完成113年度實地查核標準案例彙整。</h2>
   <div class="content">
     <table class="gov">
@@ -450,7 +456,7 @@ SLIDES.push(`
 SLIDES.push(`
 <div class="slide">
   <div class="eyebrow">115年度期中審查</div>
-  <h1>期中標準3：工作手冊章節架構</h1>
+  <h1>期中標準 1-3：工作手冊章節架構</h1>
   <h2 class="subtitle">期中標準：完成《查核小組實地查核及報告撰寫工作手冊》章節架構。</h2>
   <div class="content">
     <div class="timeline">
@@ -479,7 +485,7 @@ SLIDES.push(`
 SLIDES.push(`
 <div class="slide">
   <div class="eyebrow">115年度期中審查</div>
-  <h1>期中標準4：工作會議紀錄</h1>
+  <h1>期中標準 1-4：工作會議紀錄</h1>
   <h2 class="subtitle">期中標準：完成工作會議會議紀錄至少2場次。<span class="badge" style="margin-left:10px;">實際完成5場專家小組會議，已超標達成</span></h2>
   <div class="content">
     <p style="font-size:14.5px;color:var(--text-muted);">會議功能：追蹤指引修正、案例彙整、手冊架構與跨計畫諮詢之決議。紀錄內容涵蓋議題、出席、討論摘要、決議事項、責任分工與預定完成日。</p>
@@ -493,6 +499,7 @@ SLIDES.push(`
     </table>
     <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">佐證資料：細部一佐證／0408、0410、0416、0417、0421標準案例小組會議紀錄(各PDF)；主持人均為陳穎萱助理、記錄為傅怡靜助理。</p>
     <div class="photonote">
+      <button type="button" class="photonote-close" contenteditable="false" title="完成後可移除此提醒">✕</button>
       <div class="pn-icon">📷</div>
       <div>
         <b>建議插入位置：工作會議出席人數紀錄</b>
@@ -552,6 +559,7 @@ SLIDES.push(`
   <div class="content">
     <p style="font-size:14px;color:var(--text-muted);">參考佐證：細部計畫二工作會議「實驗動物輔導平台的回顧分析」會議紀錄（0108第1次、0323第2次），就歷年機構諮詢案例進行回顧分析，作為FAQ題庫之素材來源。</p>
     <div class="photonote">
+      <button type="button" class="photonote-close" contenteditable="false" title="完成後可移除此提醒">✕</button>
       <div class="pn-icon">📷</div>
       <div><b>建議插入位置：FAQ彙整成果頁面截圖</b><div class="pn-text">建議補充FAQ問題集文件首頁或目錄截圖，呈現實際彙整之20題分類，加強完成度之視覺佐證。</div></div>
     </div>
@@ -566,6 +574,7 @@ SLIDES.push(`
   <h2 class="subtitle">期中標準：完成執秘工作職能需求問卷設計1式，回收至少5份。</h2>
   <div class="content">
     <div class="photonote">
+      <button type="button" class="photonote-close" contenteditable="false" title="完成後可移除此提醒">✕</button>
       <div class="pn-icon">📷</div>
       <div><b>建議插入位置：問卷設計與回收統計</b><div class="pn-text">建議插入問卷題型截圖及回收份數統計圖（如已回收5份以上之機構/單位分布圖），以圖表呈現回收進度。</div></div>
     </div>
@@ -655,6 +664,7 @@ SLIDES.push(`
   <div class="content">
     <div class="card"><h3>安樂死與環境管理原則</h3><p>培訓內容涵蓋水生動物安樂死方法（參考美國AVMA，依魚種冷熱帶特性調整冰浴方式）及環境管理（大環境房舍、小環境水質光照，如斑馬魚28°C水溫管理）。</p></div>
     <div class="photonote">
+      <button type="button" class="photonote-close" contenteditable="false" title="完成後可移除此提醒">✕</button>
       <div class="pn-icon">📷</div>
       <div><b>建議插入位置：培訓場次照片</b><div class="pn-text">建議補充2場主題講習/技術培訓之現場照片或簽到統計，呈現參與人數與實作演練畫面。</div></div>
     </div>
@@ -670,6 +680,7 @@ SLIDES.push(`
   <div class="content">
     <p style="font-size:14.5px;color:var(--text-muted);">115年1月14日於國立海洋大學生科系召開第1次工作會議，由劉逸軒教授主持，黃之暘副教授與會，就水生動物3R原則落實、IACUC自我審查與外部查核界線進行討論，會後由NTU提供指引修正檔案供水生領域延伸參考。</p>
     <div class="photonote">
+      <button type="button" class="photonote-close" contenteditable="false" title="完成後可移除此提醒">✕</button>
       <div class="pn-icon">📷</div>
       <div><b>建議插入位置：諮詢會議合影</b><div class="pn-text">建議補充水生與陸域專家諮詢會議之現場合影或視訊會議截圖，佐證跨領域專家共同審視規範草案之事實。</div></div>
     </div>
@@ -937,24 +948,46 @@ function insertPhotoIntoSlide(slideEl, dataUrl){
   const content = slideEl.querySelector('.content') || slideEl;
   const wrap = document.createElement('div');
   wrap.className = 'inserted-photo-wrap';
-  wrap.setAttribute('contenteditable', 'false');
   const img = document.createElement('img');
   img.className = 'inserted-photo';
+  img.setAttribute('contenteditable', 'false');
   img.src = dataUrl;
+  const caption = document.createElement('div');
+  caption.className = 'photo-caption';
+  caption.contentEditable = 'true';
+  caption.setAttribute('data-placeholder', '輸入照片說明…（例如：時間、地點、人數）');
   const delBtn = document.createElement('button');
   delBtn.type = 'button';
   delBtn.className = 'photo-del-btn';
+  delBtn.setAttribute('contenteditable', 'false');
   delBtn.textContent = '✕';
   delBtn.title = '移除這張照片';
-  delBtn.addEventListener('click', ()=>{
-    wrap.remove();
-    content.dispatchEvent(new Event('input', {bubbles:true}));
-  });
   wrap.appendChild(img);
+  wrap.appendChild(caption);
   wrap.appendChild(delBtn);
   content.appendChild(wrap);
   content.dispatchEvent(new Event('input', {bubbles:true}));
 }
+// Delegated handlers so buttons keep working even after their markup arrives via a
+// remote Firebase sync (innerHTML replacement does not carry over JS listeners).
+deck.addEventListener('click', (e)=>{
+  const delPhoto = e.target.closest('.photo-del-btn');
+  if(delPhoto){
+    const wrap = delPhoto.closest('.inserted-photo-wrap');
+    const slideEl = delPhoto.closest('.slide');
+    if(wrap) wrap.remove();
+    if(slideEl) slideEl.dispatchEvent(new Event('input', {bubbles:true}));
+    return;
+  }
+  const closeNote = e.target.closest('.photonote-close');
+  if(closeNote){
+    const note = closeNote.closest('.photonote');
+    const slideEl = closeNote.closest('.slide');
+    if(note) note.remove();
+    if(slideEl) slideEl.dispatchEvent(new Event('input', {bubbles:true}));
+    return;
+  }
+});
 document.getElementById('photoBtn').addEventListener('click', ()=>{
   document.getElementById('photoInput').click();
 });
@@ -1002,7 +1035,7 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
       clone.style.width = '1280px';
       clone.style.height = 'auto';
       clone.style.minHeight = '720px';
-      clone.querySelectorAll('.photo-del-btn').forEach(n=>n.remove());
+      clone.querySelectorAll('.photo-del-btn, .photonote-close').forEach(n=>n.remove());
       stage.innerHTML = '';
       stage.appendChild(clone);
 
