@@ -166,6 +166,14 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
 .footer-tag{position:absolute;bottom:18px;right:88px;font-size:11.5px;color:#aab2cc;}
 .slide:not(.dark) .footer-tag{color:#9aa1ba;}
 
+/* inserted photos */
+.inserted-photo-wrap{position:relative;display:inline-block;max-width:100%;margin-top:14px;}
+.inserted-photo-wrap img.inserted-photo{max-width:100%;display:block;border-radius:10px;box-shadow:0 2px 12px rgba(20,26,69,.18);}
+.photo-del-btn{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;cursor:pointer;font-size:12px;line-height:1;}
+.photo-del-btn:hover{background:rgba(0,0,0,.8);}
+#photoBtn{background:rgba(255,255,255,.12);}
+#photoBtn:hover{background:rgba(255,255,255,.25);}
+
 @media (max-width:900px){
   .slide{padding:36px 28px 90px;}
   .cols-2,.cols-3,.cols-4{grid-template-columns:1fr;}
@@ -222,6 +230,8 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
       </div>
       <div id="dots"></div>
       <div class="btns">
+        <button id="photoBtn">🖼️ 插入照片</button>
+        <input type="file" id="photoInput" accept="image/*" hidden>
         <button id="exportBtn">⬇ 下載 PPT</button>
         <div id="counter">1 / 24</div>
       </div>
@@ -232,6 +242,7 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
 const SLIDES = [];
 
@@ -897,98 +908,124 @@ deck.addEventListener('touchend', e=>{
 });
 render();
 
-// ===== EXPORT TO PPTX =====
-function cleanText(t){ return (t||'').replace(/\s+/g,' ').trim(); }
+// ===== PHOTO INSERT (any collaborator can attach images; synced like text) =====
+function resizeImageToDataURL(file, maxDim, quality){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let {width, height} = img;
+        if(width > maxDim || height > maxDim){
+          const scale = maxDim / Math.max(width, height);
+          width = Math.round(width*scale);
+          height = Math.round(height*scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function insertPhotoIntoSlide(slideEl, dataUrl){
+  const content = slideEl.querySelector('.content') || slideEl;
+  const wrap = document.createElement('div');
+  wrap.className = 'inserted-photo-wrap';
+  wrap.setAttribute('contenteditable', 'false');
+  const img = document.createElement('img');
+  img.className = 'inserted-photo';
+  img.src = dataUrl;
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'photo-del-btn';
+  delBtn.textContent = '✕';
+  delBtn.title = '移除這張照片';
+  delBtn.addEventListener('click', ()=>{
+    wrap.remove();
+    content.dispatchEvent(new Event('input', {bubbles:true}));
+  });
+  wrap.appendChild(img);
+  wrap.appendChild(delBtn);
+  content.appendChild(wrap);
+  content.dispatchEvent(new Event('input', {bubbles:true}));
+}
+document.getElementById('photoBtn').addEventListener('click', ()=>{
+  document.getElementById('photoInput').click();
+});
+document.getElementById('photoInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  if(file.size > 20*1024*1024){ alert('圖片檔案太大（超過20MB），請換一張較小的圖片。'); return; }
+  try{
+    const dataUrl = await resizeImageToDataURL(file, 1000, 0.8);
+    insertPhotoIntoSlide(slideEls[current], dataUrl);
+  }catch(err){
+    console.error(err);
+    alert('插入照片失敗，請換一張圖片再試一次。');
+  }
+});
 
+// ===== EXPORT TO PPTX (screenshot each slide so the file looks exactly like the on-screen design) =====
 document.getElementById('exportBtn').addEventListener('click', async ()=>{
   const btn = document.getElementById('exportBtn');
-  btn.textContent = '匯出中…';
   btn.disabled = true;
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+
+  const stage = document.createElement('div');
+  stage.style.position = 'fixed';
+  stage.style.left = '-99999px';
+  stage.style.top = '0';
+  stage.style.width = '1280px';
+  stage.style.zIndex = '-1';
+  document.body.appendChild(stage);
+
   try{
     const pptx = new PptxGenJS();
     pptx.defineLayout({ name:'WIDE', width:13.33, height:7.5 });
     pptx.layout = 'WIDE';
-    const NAVY = '1E2761', ACCENT = 'E0A458', MUTED = '5A6178', WHITE='FFFFFF', DARKBG='141A45';
 
-    slideEls.forEach((el)=>{
-      const isDark = el.classList.contains('dark');
+    for(let i=0; i<slideEls.length; i++){
+      btn.textContent = `匯出中… ${i+1}/${slideEls.length}`;
+      const original = slideEls[i];
+      const clone = original.cloneNode(true);
+      clone.classList.add('active');
+      clone.style.position = 'static';
+      clone.style.opacity = '1';
+      clone.style.transform = 'none';
+      clone.style.width = '1280px';
+      clone.style.height = 'auto';
+      clone.style.minHeight = '720px';
+      clone.querySelectorAll('.photo-del-btn').forEach(n=>n.remove());
+      stage.innerHTML = '';
+      stage.appendChild(clone);
+
+      const canvas = await html2canvas(clone, {scale:2, backgroundColor:null, windowWidth:1280});
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      const pxW = canvas.width, pxH = canvas.height;
+      const PAGE_W = 13.33, PAGE_H = 7.5;
+      let drawW = PAGE_W, drawH = (pxH/pxW)*PAGE_W;
+      if(drawH > PAGE_H){ drawH = PAGE_H; drawW = (pxW/pxH)*PAGE_H; }
+      const x = (PAGE_W - drawW)/2, y = (PAGE_H - drawH)/2;
+
       const s = pptx.addSlide();
-      s.background = { color: isDark ? DARKBG : WHITE };
+      s.background = { color: original.classList.contains('dark') ? '141A45' : 'FFFFFF' };
+      s.addImage({ data: dataUrl, x, y, w: drawW, h: drawH });
+    }
 
-      const eyebrow = cleanText(el.querySelector('.eyebrow, .partlabel')?.textContent);
-      const titleEl = el.querySelector('h1');
-      const subEl = el.querySelector('h2.subtitle');
-      const title = cleanText(titleEl?.textContent);
-      const sub = cleanText(subEl?.textContent);
-
-      let y = 0.4;
-      if(eyebrow){
-        s.addText(eyebrow, {x:0.6,y:y,w:12,h:0.35,fontSize:11,color:ACCENT,bold:true,charSpacing:2});
-        y += 0.4;
-      }
-      if(title){
-        s.addText(title, {x:0.6,y:y,w:12.1,h:0.9,fontSize:26,color:isDark?WHITE:NAVY,bold:true});
-        y += 0.85;
-      }
-      if(sub){
-        s.addText(sub, {x:0.6,y:y,w:12.1,h:0.5,fontSize:13,color:isDark?'CADCFC':MUTED});
-        y += 0.55;
-      }
-
-      const bullets = [];
-      const contentRoot = el.querySelector('.content') || el;
-
-      contentRoot.querySelectorAll('table.gov').forEach(table=>{
-        const rows = Array.from(table.querySelectorAll('tr')).map(tr=>
-          Array.from(tr.querySelectorAll('th,td')).map(c=>cleanText(c.textContent))
-        );
-        if(rows.length){
-          const tRows = rows.map((r,ri)=> r.map(cellText=>({
-            text: cellText,
-            options: ri===0 ? {bold:true, color:WHITE, fill:{color:NAVY}, fontSize:10} : {fontSize:10, color:'1c1f2e'}
-          })));
-          s.addTable(tRows, {x:0.6,y:y,w:12.1,colW: Array(rows[0].length).fill(12.1/rows[0].length), autoPage:false, fontFace:'Microsoft JhengHei'});
-          y += Math.min(0.32*rows.length, 4.5) + 0.25;
-        }
-      });
-
-      contentRoot.querySelectorAll('.card').forEach(card=>{
-        const h = cleanText(card.querySelector('h3')?.textContent);
-        const p = cleanText(card.querySelector('p')?.textContent);
-        if(h || p) bullets.push({text: h ? `${h}：${p}` : p, options:{bullet:true, fontSize:12, color:'1c1f2e'}});
-      });
-      contentRoot.querySelectorAll('.stat-box').forEach(box=>{
-        const num = cleanText(box.querySelector('.num')?.textContent);
-        const lbl = cleanText(box.querySelector('.lbl')?.textContent);
-        const who = cleanText(box.querySelector('.who')?.textContent);
-        if(num||lbl) bullets.push({text:`${lbl}：${num}${who? '（'+who+'）':''}`, options:{bullet:true, fontSize:12, color:'1c1f2e'}});
-      });
-      contentRoot.querySelectorAll(':scope > ul.checklist > li, :scope > .timeline .tstep').forEach(li=>{
-        const t = cleanText(li.textContent);
-        if(t) bullets.push({text:t, options:{bullet:true, fontSize:12, color:'1c1f2e'}});
-      });
-      if(!bullets.length){
-        contentRoot.querySelectorAll('p, li').forEach(node=>{
-          if(node.closest('table.gov') || node.closest('.card') || node.closest('.stat-box')) return;
-          const t = cleanText(node.textContent);
-          if(t) bullets.push({text:t, options:{bullet:true, fontSize:12, color:'1c1f2e'}});
-        });
-      }
-      contentRoot.querySelectorAll('.photonote').forEach(note=>{
-        const t = cleanText(note.textContent);
-        if(t) bullets.push({text:'📷 '+t, options:{fontSize:10.5, italic:true, color:'A36A16', bullet:false}});
-      });
-
-      if(bullets.length){
-        s.addText(bullets, {x:0.6, y:y, w:12.1, h:Math.max(0.5, 7.0-y), fontSize:12, color: isDark? WHITE : '1c1f2e', valign:'top', lineSpacingMultiple:1.25});
-      }
-    });
-
+    btn.textContent = '產生檔案中…';
     await pptx.writeFile({ fileName: '期中簡報V2_互動編輯版.pptx' });
   }catch(err){
     console.error(err);
     alert('匯出失敗，請查看主控台錯誤訊息：'+err.message);
   }finally{
+    stage.remove();
     btn.textContent = '⬇ 下載 PPT';
     btn.disabled = false;
   }
