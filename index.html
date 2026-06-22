@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>115年度科技計畫期中審查報告｜優化動物科學應用機構查核機制</title>
+<style>
+:root{
+  --navy:#1E2761;
+  --navy-deep:#141A45;
+  --ice:#CADCFC;
+  --white:#FFFFFF;
+  --accent:#E0A458;
+  --text-dark:#1c1f2e;
+  --text-muted:#5a6178;
+  --card-bg:#F6F8FC;
+  --good:#2C8C5A;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif;background:var(--navy-deep);color:var(--text-dark);overflow:hidden;}
+
+#app{display:flex;width:100vw;height:100vh;}
+
+/* ---- Sidebar TOC ---- */
+#sidebar{width:268px;min-width:268px;height:100vh;background:var(--navy-deep);color:#fff;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.08);transition:margin-left .25s ease;}
+#sidebar .sb-head{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.1);}
+#sidebar .sb-head .sb-title{font-size:14px;font-weight:700;color:#fff;}
+#sidebar .sb-head .sb-sub{font-size:11.5px;color:var(--ice);margin-top:2px;}
+#sidebar .sb-search{margin:12px 14px 6px;}
+#sidebar .sb-search input{width:100%;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:13px;outline:none;}
+#sidebar .sb-search input::placeholder{color:rgba(255,255,255,.4);}
+#sidebar .sb-list{flex:1;overflow-y:auto;padding:6px 8px 10px;}
+#sidebar .sb-item{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;line-height:1.4;color:rgba(255,255,255,.78);}
+#sidebar .sb-item:hover{background:rgba(255,255,255,.08);}
+#sidebar .sb-item.on{background:rgba(224,164,88,.18);color:#fff;}
+#sidebar .sb-item .sb-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+#sidebar .sb-item.on .sb-num{background:var(--accent);color:#1c1f2e;}
+#sidebar .sb-item .sb-section{font-size:10.5px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-top:8px;padding:0 10px;}
+#sbToggle{position:fixed;top:14px;left:14px;z-index:60;background:var(--navy);color:#fff;border:none;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;display:none;}
+
+#main{flex:1;position:relative;height:100vh;overflow:hidden;}
+#deck{position:relative;width:100%;height:100%;overflow:hidden;}
+.slide{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  display:flex;flex-direction:column;justify-content:flex-start;
+  padding:64px 88px 56px;
+  opacity:0;transform:translateX(40px);
+  transition:opacity .45s ease, transform .45s ease;
+  pointer-events:none;
+  background:var(--white);
+}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:auto;}
+.slide.dark{background:linear-gradient(135deg,var(--navy-deep),var(--navy));color:var(--white);}
+.slide .eyebrow{font-size:14px;letter-spacing:2px;color:var(--accent);font-weight:700;text-transform:uppercase;margin-bottom:10px;}
+.slide.dark .eyebrow{color:var(--ice);}
+.slide h1{font-size:34px;color:var(--navy);margin:0 0 6px;font-weight:800;line-height:1.25;}
+.slide.dark h1{color:var(--white);}
+.slide h2.subtitle{font-size:16px;color:var(--text-muted);font-weight:500;margin:0 0 28px;}
+.slide.dark h2.subtitle{color:var(--ice);}
+.content{flex:1;overflow:auto;}
+
+/* TITLE SLIDE */
+.title-slide{justify-content:flex-start;align-items:flex-start;padding-top:54px;background:radial-gradient(circle at 80% 20%, #2b3a8f 0%, var(--navy-deep) 60%);}
+.title-slide .tag{display:inline-block;background:rgba(255,255,255,.12);color:var(--ice);padding:6px 16px;border-radius:20px;font-size:13px;letter-spacing:1px;margin-bottom:18px;}
+.title-slide h1{font-size:38px;color:#fff;max-width:820px;line-height:1.3;margin-bottom:8px;}
+.title-slide h1.sub-h1{font-size:21px;color:var(--ice);font-weight:600;margin-top:4px;}
+.title-slide .en{font-size:16px;color:var(--ice);font-style:italic;margin:12px 0 22px;line-height:1.5;max-width:760px;}
+.title-slide .meta{display:flex;gap:36px;margin-top:18px;flex-wrap:wrap;}
+.title-slide .meta div{font-size:15px;color:var(--ice);}
+.title-slide .meta b{display:block;color:#fff;font-size:17px;margin-bottom:4px;}
+.title-slide .footer-org{position:absolute;bottom:50px;left:88px;color:rgba(255,255,255,.7);font-size:14px;}
+
+/* CARDS */
+.cardgrid{display:grid;gap:20px;}
+.cols-2{grid-template-columns:repeat(2,1fr);}
+.cols-3{grid-template-columns:repeat(3,1fr);}
+.cols-4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--card-bg);border-radius:14px;padding:22px 24px;box-shadow:0 2px 10px rgba(20,26,69,.06);}
+.card h3{margin:0 0 8px;color:var(--navy);font-size:17px;display:flex;align-items:center;gap:10px;}
+.card p{margin:0;font-size:14.5px;color:var(--text-muted);line-height:1.6;}
+.icon-circle{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;}
+
+.stat-row{display:flex;gap:24px;margin:18px 0;flex-wrap:wrap;}
+.stat-box{background:var(--card-bg);border-radius:14px;padding:22px 26px;flex:1;min-width:170px;}
+.stat-box .num{font-size:42px;font-weight:800;color:var(--navy);}
+.stat-box.accent .num{color:var(--accent);}
+.stat-box .lbl{font-size:13.5px;color:var(--text-muted);margin-top:4px;}
+.stat-box .who{font-size:12.5px;color:var(--text-muted);margin-top:2px;}
+
+.progressbar{height:10px;background:#e6e9f3;border-radius:6px;overflow:hidden;margin-top:8px;}
+.progressbar > div{height:100%;background:linear-gradient(90deg,var(--navy),var(--accent));border-radius:6px;}
+.pbar-row{display:flex;justify-content:space-between;font-size:14.5px;color:var(--navy);font-weight:600;}
+
+table.gov{width:100%;border-collapse:collapse;font-size:14px;}
+table.gov th{background:var(--navy);color:#fff;text-align:left;padding:10px 14px;font-weight:600;}
+table.gov td{padding:10px 14px;border-bottom:1px solid #e3e6f0;vertical-align:top;color:var(--text-dark);}
+table.gov tr:nth-child(even) td{background:#f8f9fd;}
+
+.badge{display:inline-block;background:var(--good);color:#fff;font-size:12.5px;padding:4px 12px;border-radius:20px;font-weight:600;}
+.badge.warn{background:var(--accent);}
+
+.checklist{list-style:none;margin:0;padding:0;}
+.checklist li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed #e3e6f0;font-size:14.5px;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li .tick{color:var(--good);font-weight:900;}
+
+.timeline{display:flex;gap:0;margin-top:10px;}
+.tstep{flex:1;text-align:center;position:relative;padding:0 8px;}
+.tstep .circ{width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-weight:700;}
+.tstep .ttitle{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.tstep .tdesc{font-size:12.5px;color:var(--text-muted);}
+.tstep:not(:last-child)::after{content:"";position:absolute;top:20px;right:-8px;width:16px;height:2px;background:#cfd5ea;}
+
+.photonote{margin-top:18px;border:2px dashed var(--accent);border-radius:14px;padding:18px 22px;background:#fff7ec;display:flex;gap:16px;align-items:flex-start;}
+.photonote .pn-icon{font-size:26px;}
+.photonote b{color:#a36a16;}
+.photonote .pn-text{font-size:13.5px;color:#6b4a14;line-height:1.6;}
+
+.quote-block{background:var(--card-bg);border-radius:14px;padding:20px 24px;font-size:14.5px;color:var(--text-dark);line-height:1.75;}
+
+.evidence-tag{display:inline-block;font-size:11.5px;background:var(--ice);color:var(--navy);padding:3px 10px;border-radius:10px;margin:2px 4px 2px 0;font-weight:600;}
+
+.section-divider{justify-content:center;align-items:flex-start;background:linear-gradient(135deg,var(--navy),#3a4aa8);}
+.section-divider .big-num{font-size:120px;font-weight:900;color:rgba(255,255,255,.12);position:absolute;top:40px;right:80px;}
+.section-divider h1{font-size:40px;color:#fff;max-width:760px;}
+.section-divider .partlabel{color:var(--ice);font-size:16px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+
+/* nav */
+#navbar{position:absolute;bottom:0;left:0;width:100%;height:64px;background:rgba(20,26,69,.92);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:50;color:#fff;font-size:13px;}
+#navbar .btns{display:flex;gap:10px;align-items:center;}
+#navbar button{background:rgba(255,255,255,.12);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;}
+#navbar button:hover{background:rgba(255,255,255,.25);}
+#navbar #exportBtn{background:var(--accent);color:#1c1f2e;font-weight:700;}
+#navbar #exportBtn:hover{background:#eab571;}
+#saveStatus{font-size:12px;color:rgba(255,255,255,.5);margin-left:8px;}
+#presencePill{font-size:12px;background:rgba(255,255,255,.12);padding:5px 12px;border-radius:14px;display:flex;align-items:center;gap:6px;}
+#presencePill .dot{width:7px;height:7px;border-radius:50%;background:#39d98a;}
+#presencePill.offline .dot{background:#aab2cc;}
+
+/* setup banner */
+#setupBanner{position:fixed;top:0;left:0;width:100%;background:#fff3cd;color:#7a5b00;font-size:13px;padding:9px 18px;display:flex;align-items:center;justify-content:center;gap:14px;z-index:80;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+#setupBanner button{background:#7a5b00;color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12.5px;}
+#setupBanner .closeX{background:transparent;color:#7a5b00;font-size:16px;padding:0 4px;}
+#setupModal{position:fixed;inset:0;background:rgba(20,26,69,.55);z-index:90;display:none;align-items:center;justify-content:center;}
+#setupModal.open{display:flex;}
+#setupModal .box{background:#fff;width:640px;max-width:92vw;max-height:84vh;overflow-y:auto;border-radius:16px;padding:30px 34px;font-size:14px;line-height:1.8;color:#1c1f2e;}
+#setupModal .box h2{color:var(--navy);font-size:20px;margin-top:0;}
+#setupModal .box ol{padding-left:20px;}
+#setupModal .box code{background:#f1f3fa;padding:2px 6px;border-radius:5px;font-size:12.5px;}
+#setupModal .box textarea{width:100%;height:130px;font-family:Consolas,monospace;font-size:12.5px;padding:10px;border:1px solid #d8dceb;border-radius:8px;margin-top:6px;}
+#setupModal .box .actions{margin-top:16px;display:flex;gap:10px;justify-content:flex-end;}
+#setupModal .box .actions button{padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-size:13.5px;}
+#setupModal .box .saveCfg{background:var(--navy);color:#fff;}
+#setupModal .box .closeCfg{background:#eee;color:#333;}
+#dots{display:flex;gap:5px;flex-wrap:wrap;max-width:30%;}
+#dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;}
+#dots span.on{background:var(--accent);}
+#counter{color:var(--ice);min-width:70px;text-align:right;}
+
+/* editable affordance */
+[contenteditable="true"]{outline:none;}
+[contenteditable="true"]:hover{background:rgba(224,164,88,.07);border-radius:6px;}
+[contenteditable="true"]:focus{background:rgba(224,164,88,.13);border-radius:6px;box-shadow:0 0 0 2px var(--accent) inset;}
+table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:focus{box-shadow:inset 0 0 0 2px var(--accent);}
+
+.footer-tag{position:absolute;bottom:18px;right:88px;font-size:11.5px;color:#aab2cc;}
+.slide:not(.dark) .footer-tag{color:#9aa1ba;}
+
+@media (max-width:900px){
+  .slide{padding:36px 28px 90px;}
+  .cols-2,.cols-3,.cols-4{grid-template-columns:1fr;}
+  .title-slide h1{font-size:28px;}
+  #sidebar{position:fixed;left:0;top:0;z-index:55;margin-left:-268px;}
+  #sidebar.open{margin-left:0;box-shadow:6px 0 24px rgba(0,0,0,.35);}
+  #sbToggle{display:flex;align-items:center;justify-content:center;}
+}
+</style>
+</head>
+<body>
+<div id="setupBanner">
+  <span>⚠️ 尚未啟用「即時共編」— 目前編輯內容只存在您自己的瀏覽器，其他老師看不到您的修改。</span>
+  <button id="openSetupBtn">啟用即時共編</button>
+  <button class="closeX" id="closeBannerBtn">✕</button>
+</div>
+<div id="setupModal">
+  <div class="box">
+    <h2>啟用「真正多人即時共編」設定步驟</h2>
+    <p>這份簡報採用 <b>Firebase Realtime Database</b>（Google 提供，免費額度足夠此用途）作為同步後端。請依下列步驟取得設定資料，貼到下方欄位即可：</p>
+    <ol>
+      <li>開啟 <code>https://console.firebase.google.com</code>，用 Google 帳號登入，點「新增專案」，輸入專案名稱（例如 <code>115期中簡報</code>），一路下一步建立完成。</li>
+      <li>左側選單「建構」→「Realtime Database」→「建立資料庫」，地區選 <code>asia-southeast1</code> 或預設即可，安全性規則先選「<b>測試模式</b>」（方便所有老師讀寫，30天後需手動延長或改規則）。</li>
+      <li>左側「專案總覽」旁的齒輪 ⚙ →「專案設定」，往下捲到「您的應用程式」，點 <code>&lt;/&gt;</code>（網頁）圖示新增一個應用程式，命名任意即可。</li>
+      <li>建立後會顯示一段 <code>firebaseConfig = {...}</code> 的程式碼，把整段（含大括號內容）複製，貼到下方欄位，按「儲存設定」。</li>
+      <li>儲存後重新整理頁面即可生效。把這個 HTML 檔上傳到 GitHub Pages 或 Netlify 取得網址後，分享給其他老師，大家打開同一網址編輯即會即時同步。</li>
+    </ol>
+    <textarea id="cfgInput" placeholder='貼上像這樣的內容：&#10;{&#10;  apiKey: "AIza...",&#10;  authDomain: "xxx.firebaseapp.com",&#10;  databaseURL: "https://xxx-default-rtdb.firebaseio.com",&#10;  projectId: "xxx"&#10;}'></textarea>
+    <div class="actions">
+      <button class="closeCfg" id="closeCfgBtn">先不設定</button>
+      <button class="saveCfg" id="saveCfgBtn">儲存設定</button>
+    </div>
+  </div>
+</div>
+
+<button id="sbToggle" title="目錄">☰</button>
+<div id="app">
+  <div id="sidebar">
+    <div class="sb-head">
+      <div class="sb-title">115年度期中審查報告</div>
+      <div class="sb-sub">優化動物科學應用機構查核機制（3/4）</div>
+    </div>
+    <div class="sb-search"><input id="sbSearch" type="text" placeholder="搜尋頁面標題..."></div>
+    <div class="sb-list" id="sbList"></div>
+  </div>
+  <div id="main">
+    <div id="deck"></div>
+    <div id="navbar">
+      <div class="btns">
+        <button id="prevBtn">‹ 上一頁</button>
+        <button id="nextBtn">下一頁 ›</button>
+        <span id="presencePill" class="offline"><span class="dot"></span><span id="presenceText">未連線同步</span></span>
+        <span id="saveStatus">已自動儲存編輯內容</span>
+      </div>
+      <div id="dots"></div>
+      <div class="btns">
+        <button id="exportBtn">⬇ 下載 PPT</button>
+        <div id="counter">1 / 24</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script>
+const SLIDES = [];
+
+// ---------- Slide 1 ----------
+SLIDES.push(`
+<div class="slide title-slide">
+  <span class="tag">中華民國115年期中審查 · 審查用稿</span>
+  <h1>農業部115年度科技計畫期中審查報告</h1>
+  <h1 class="sub-h1">優化動物科學應用機構查核機制（3/4）</h1>
+  <div class="en">Optimize the inspection mechanism for the institution using animals for scientific application</div>
+  <div class="meta">
+    <div><b>114–116年</b>計畫期間</div>
+    <div><b>115年</b>本年度</div>
+    <div><b>國立臺灣大學</b>執行機構</div>
+  </div>
+  <div class="footer-org">國立臺灣大學 動物科學技術學系｜農業部科技計畫</div>
+</div>`);
+
+// ---------- Slide 2 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查 · 第一部分</div>
+  <h1>統籌計畫概況</h1>
+  <h2 class="subtitle">優化動物科學應用機構查核及管理機制（115農科-2.6.2-動-02）</h2>
+  <div class="content">
+    <div class="cardgrid cols-3">
+      <div class="card"><h3><span class="icon-circle">P</span>計畫主持人</h3><p>劉逸軒 教授<br>ihliu@ntu.edu.tw</p></div>
+      <div class="card"><h3><span class="icon-circle">O</span>執行機構</h3><p>國立臺灣大學<br>動物科學技術學系</p></div>
+      <div class="card"><h3><span class="icon-circle">T</span>計畫期間</h3><p>114–116年（3年期）</p></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="num">5,250<small style="font-size:18px;">千元</small></div><div class="lbl">本年度預算</div></div>
+      <div class="stat-box accent"><div class="num">10,750<small style="font-size:18px;">千元</small></div><div class="lbl">全程預算</div></div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 3 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>全程計畫目標</h1>
+  <h2 class="subtitle">以制度化查核、標準化判定與專業支援，提升動物科學應用機構之管理品質與動物福利。</h2>
+  <div class="content">
+    <div class="cardgrid cols-2">
+      <div class="card"><h3><span class="icon-circle">1</span>查核標準一致化</h3><p>彙整實地查核缺失與案例，建置可供外部查核委員共用之判定依據，降低判定落差。</p></div>
+      <div class="card"><h3><span class="icon-circle">2</span>IACUC管理量能</h3><p>透過專家庫、培訓與交流，強化IACUC審查與動物照護管理專業。</p></div>
+      <div class="card"><h3><span class="icon-circle">3</span>指引與教材修正</h3><p>修正《實驗動物照護及使用指引》並規劃教育訓練，使規範更貼近現場與國際趨勢。</p></div>
+      <div class="card"><h3><span class="icon-circle">4</span>跨計畫諮詢支援</h3><p>針對水生實驗動物與小型機構需求，提供諮詢、資料統整與審查流程建議。</p></div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 4 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>計畫整體執行進度（115年度 Q2 期中）</h1>
+  <div class="content">
+    <div class="stat-row">
+      <div class="stat-box accent"><div class="num">53.06%</div><div class="lbl">整體 Q2 執行進度</div></div>
+      <div class="stat-box"><div class="num">53%</div><div class="lbl">細部計畫一</div><div class="who">劉逸軒 教授（NTU動科）</div></div>
+      <div class="stat-box"><div class="num">50%</div><div class="lbl">細部計畫二</div><div class="who">王家琪 教授（NTU獸醫）</div></div>
+      <div class="stat-box"><div class="num">56%</div><div class="lbl">細部計畫三</div><div class="who">黃之暘 副教授（NTOU水產）</div></div>
+    </div>
+    <h3 style="color:var(--navy);margin:18px 0 6px;">Q2 關鍵里程碑</h3>
+    <ul class="checklist">
+      <li><span class="tick">✓</span>細部一：辦理研討會1場、行前會議1場</li>
+      <li><span class="tick">✓</span>細部一：完成113年度標準案例彙整</li>
+      <li><span class="tick">✓</span>細部一：完成工作手冊章節架構</li>
+      <li><span class="tick">✓</span>細部一：完成工作會議2場次（實際已逾5場專家小組會議，詳見P9-12）</li>
+      <li><span class="tick">✓</span>細部二：完成FAQ問題集（≥20題）</li>
+      <li><span class="tick">✓</span>細部二：完成執秘問卷（≥5份）</li>
+      <li><span class="tick">✓</span>細部三：完成3份研究報告</li>
+      <li><span class="tick">✓</span>細部三：完成培訓2場、諮詢1場</li>
+    </ul>
+  </div>
+</div>`);
+
+// ---------- Slide 5 (section divider) ----------
+SLIDES.push(`
+<div class="slide section-divider dark">
+  <div class="big-num">02</div>
+  <div class="partlabel">第二部分</div>
+  <h1>細部計畫一執行成果</h1>
+  <h2 class="subtitle" style="max-width:700px;">優化動物科學應用機構查核機制（115農科-2.6.2-動-02(1)）</h2>
+  <div class="cardgrid cols-4" style="margin-top:20px;">
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">計畫主持人</h3><p style="color:var(--ice);">劉逸軒 教授</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">執行機構</h3><p style="color:var(--ice);">國立臺灣大學<br>動物科學技術學系</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">115年度預算</h3><p style="color:var(--ice);">2,750 千元（工作比重 52.38%）</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">期中評核標準</h3><p style="color:var(--ice);">4 項（全數達成）</p></div>
+  </div>
+</div>`);
+
+// ---------- Slide 6 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>115年度目標工作主軸</h1>
+  <div class="content">
+    <table class="gov">
+      <tr><th style="width:40px;">項次</th><th>115年度目標</th><th>期中審查關注</th></tr>
+      <tr><td>1</td><td>完成《實驗動物照護及使用指引》修正版定稿與教育訓練</td><td>彙整修正意見、召開專家會議、形成定稿建議，並辦理指引修正版教育工作坊2場次。</td></tr>
+      <tr><td>2</td><td>建立實地查核標準及報告一致化機制</td><td>彙整113-114年實地查核缺失資料，研析缺失案例並形成標準案例；建立查核報告撰寫與一致性工作手冊架構。</td></tr>
+      <tr><td>3</td><td>統籌跨計畫名詞定義諮詢，優化重複校閱流程並排除異質資料衝突</td><td>建立水生實驗動物特殊生理需求與環境監測資料，檢核法規一致性並以工作會議追蹤。</td></tr>
+      <tr><td>4</td><td>支援外部查核與專業社群</td><td>透過案例研討、行前會議與共同討論，提升查核委員對標準尺度與報告表述之一致性。</td></tr>
+    </table>
+  </div>
+</div>`);
+
+// ---------- Slide 7 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>115年度期中評核標準</h1>
+  <div class="content">
+    <table class="gov">
+      <tr><th style="width:40px;">項次</th><th>期中評核標準</th><th>對應工作項目</th></tr>
+      <tr><td>1</td><td>辦理實地查核缺失案例研討會1場次，協辦查核行前會議1場次。</td><td><span class="badge">查核標準一致化</span></td></tr>
+      <tr><td>2</td><td>完成113年度實地查核標準案例彙整。</td><td><span class="badge">外部查核報告一致化</span></td></tr>
+      <tr><td>3</td><td>完成《查核小組實地查核及報告撰寫工作手冊》章節架構。</td><td><span class="badge">制度化與教材化</span></td></tr>
+      <tr><td>4</td><td>完成工作會議會議紀錄至少2場次。</td><td><span class="badge">跨計畫諮詢與排程</span></td></tr>
+    </table>
+  </div>
+</div>`);
+
+// ---------- Slide 8 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>重要工作項目預定進度</h1>
+  <h2 class="subtitle">依變更計畫，115年期中累計進度為53%；各工作項目在4-6月應完成意見彙整、案例研析會議或工作會議等節點。</h2>
+  <div class="content">
+    ${[["指引修正與教育訓練",70],["強化實地查核標準一致化",55],["提升外部查核報告一致化",45],["優化重複校閱與資料衝突",50],["期中期末報告撰寫",50]].map(([n,p])=>`
+      <div style="margin-bottom:16px;">
+        <div class="pbar-row"><span class="pbar-label">${n}</span><span class="pbar-pct">${p}%</span></div>
+        <div class="progressbar"><div style="width:${p}%;"></div></div>
+      </div>`).join('')}
+    <div class="stat-box accent" style="margin-top:18px;display:inline-block;"><div class="num">53%</div><div class="lbl">累計總進度（期中查核點）</div></div>
+  </div>
+</div>`);
+
+// ---------- Slide 9 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準1：研討會與行前會議</h1>
+  <h2 class="subtitle">期中標準：辦理實地查核缺失案例研討會1場次，協辦查核行前會議1場次。</h2>
+  <div class="content">
+    <div class="cardgrid cols-2">
+      <div class="card">
+        <h3><span class="icon-circle">研</span>實地查核缺失案例研討會</h3>
+        <p>邀集獸醫照護、IACUC管理及動物福利領域專家，針對113年度五大類查核缺失逐項討論，研判「應改善／建議改善／其他建議／無法評估」之嚴重性分級與條文引用是否允當，作為標準案例彙編之基礎。</p>
+      </div>
+      <div class="card">
+        <h3><span class="icon-circle">行</span>查核行前會議</h3>
+        <p>協辦外部查核委員行前共識會議，統一查核尺度、分工重點與必要證據清單，銜接《工作手冊》第三章「行前準備」之操作邏輯。</p>
+      </div>
+    </div>
+    <div class="photonote">
+      <div class="pn-icon">📷</div>
+      <div>
+        <b>建議插入位置：研討會與行前會議照片</b>
+        <div class="pn-text">目前佐證資料夾僅有會議紀錄文字檔，未含活動照片。建議於本頁插入「實地查核缺失案例研討會」與「查核行前會議」之現場合影、簽到表或人數統計照片（如有），以圖文並茂方式佐證辦理事實；若尚未拍攝或留存，建議後續活動時補拍存檔。</div>
+      </div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 10 : standard-case compilation + the 5 expert meetings moved here ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準2：標準案例彙整</h1>
+  <h2 class="subtitle">期中標準：完成113年度實地查核標準案例彙整。</h2>
+  <div class="content">
+    <table class="gov">
+      <tr><th>彙整層面</th><th>資料內容</th><th>審查呈現重點</th></tr>
+      <tr><td>缺失類型</td><td>依實地查核缺失歸類（IACUC管理、計畫審查與3R、內部查核與PAM、獸醫照護、房舍設施）</td><td>呈現分類邏輯，避免僅列流水帳。</td></tr>
+      <tr><td>判定標準</td><td>缺失描述、依據條文、改善要求</td><td>以同類案例建立一致判定語言。</td></tr>
+      <tr><td>報告表述</td><td>建議文字、嚴重度評估</td><td>連結工作手冊章節與查核報告撰寫格式。</td></tr>
+      <tr><td>後續擴充</td><td>銜接113-114年資料</td><td>期末完成2年度標準案例一份。</td></tr>
+    </table>
+    <h3 style="color:var(--navy);margin:18px 0 8px;">標準案例編纂方法論（節錄自《113-114年查核缺失評估標準案例》）</h3>
+    <div class="cardgrid cols-2">
+      <div class="card"><h3><span class="icon-circle">①</span>事實為先</h3><p>缺失成立始於可確認之事實，現場事實不明或缺乏佐證者，不得逕列「應改善」。</p></div>
+      <div class="card"><h3><span class="icon-circle">②</span>條文精準</h3><p>避免概括引用大章節，應校準至最小條文單元（如1.1.1(2)），使受查機構明確知悉改善方向。</p></div>
+      <div class="card"><h3><span class="icon-circle">③</span>比例原則</h3><p>嚴重性依「動物福利風險」與「制度功能受影響程度」判斷，不單以文件有無、格式完整為唯一標準。</p></div>
+      <div class="card"><h3><span class="icon-circle">④</span>分層評價</h3><p>內部查核、PAM（計畫核定後監督）與年度監督報告三項制度功能須分開判斷，不可混用。</p></div>
+    </div>
+    <h3 style="color:var(--navy);margin:20px 0 8px;">已完成之5場標準案例小組專家會議（113年度實地查核缺失標準案例）</h3>
+    <table class="gov">
+      <tr><th>場次</th><th>日期</th><th>分組</th><th>出席專家（節錄）</th></tr>
+      <tr><td>第1組</td><td>115/4/16</td><td>機構IACUC政策、管理及人員訓練類</td><td>林雅玲獸醫師、李勇陞獸醫師、徐濟泰教授</td></tr>
+      <tr><td>第2組</td><td>115/4/21</td><td>計畫審查與3R考量類</td><td>吳欣穎獸醫師、林怡君助理教授、陳炯東院長、劉福華博士</td></tr>
+      <tr><td>第3組</td><td>115/4/8</td><td>內部查核及計畫核定後監督類</td><td>劉文彬管理師、陳燕輝主任、游美淑博士</td></tr>
+      <tr><td>第4組</td><td>115/4/17</td><td>獸醫照護管理類</td><td>方美佐主任、莊子林獸醫師、賴政分獸醫師</td></tr>
+      <tr><td>第5組</td><td>115/4/10</td><td>動物房舍和支援區域類</td><td>洪昭竹顧問、張維正研究員、葉錦鴻獸醫師</td></tr>
+    </table>
+    <p style="font-size:13px;color:var(--text-muted);margin-top:6px;">佐證資料：細部一佐證／113-114年查核缺失評估標準案例_0527.docx；0408、0410、0416、0417、0421標準案例小組會議紀錄</p>
+  </div>
+</div>`);
+
+// ---------- Slide 11 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準3：工作手冊章節架構</h1>
+  <h2 class="subtitle">期中標準：完成《查核小組實地查核及報告撰寫工作手冊》章節架構。</h2>
+  <div class="content">
+    <div class="timeline">
+      <div class="tstep"><div class="circ">1</div><div class="ttitle">查核前準備</div><div class="tdesc">任務分工、資料檢核、行前會議</div></div>
+      <div class="tstep"><div class="circ">2</div><div class="ttitle">現場查核</div><div class="tdesc">訪視流程、證據收集、紀錄原則</div></div>
+      <div class="tstep"><div class="circ">3</div><div class="ttitle">缺失判定</div><div class="tdesc">標準案例、嚴重度、條文依據</div></div>
+      <div class="tstep"><div class="circ">4</div><div class="ttitle">報告撰寫</div><div class="tdesc">文字模板、照片與附件、回覆機制</div></div>
+      <div class="tstep"><div class="circ">5</div><div class="ttitle">追蹤改善</div><div class="tdesc">PAM銜接、改善期限、再追蹤</div></div>
+    </div>
+    <h3 style="color:var(--navy);margin:24px 0 8px;">章節架構對應綱要（節錄自《工作手冊綱要_0204》）</h3>
+    <table class="gov">
+      <tr><th style="width:90px;">章節</th><th>內容重點</th></tr>
+      <tr><td>第一章 總則</td><td>查核理念由「監管」轉向「提升」；軟體(80%)／硬體(20%)評分權重；績效導向(Outcome-based)判準；AAALAC三大支柱在地化。</td></tr>
+      <tr><td>第二章 角色倫理</td><td>查核小組組成分工、利益迴避與保密義務、行為準則(Code of Conduct)、查核員權限界限(參考ISO 19011)。</td></tr>
+      <tr><td>第三章 行前準備</td><td>機構監督報告書面審查、垂直稽核(Vertical Audit)路徑、行前共識會議、歷史問題追蹤、KPI風險預判。</td></tr>
+      <tr><td>第四章 現場執行</td><td>啟始會議、設施巡查（由潔至髒）、人員訪談技巧、文件交叉比對、PAM實質審查、特殊議題（社會化飼養、保定、止痛麻醉）。</td></tr>
+      <tr><td>第五章 缺失判定</td><td>重大/次要缺失與建議事項分級；0-3分評分表；系統性失效認定；爭議裁決機制。</td></tr>
+      <tr><td>第六章 結束簡報</td><td>閉門會議(Executive Session)整合共識；三明治溝通法（肯定-缺失-鼓勵）；防衛性受查者應對SOP。</td></tr>
+      <tr><td>第七章 報告撰寫</td><td>5C原則（Criteria／Condition／Cause／Consequence／Corrective Action）；Bad vs Good寫作範例對照；觀察事項與風險預告。</td></tr>
+      <tr><td>附錄</td><td>常用查核重點檢核表、法規速查卡、報告撰寫詞句彙庫。</td></tr>
+    </table>
+  </div>
+</div>`);
+
+// ---------- Slide 12 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準4：工作會議紀錄</h1>
+  <h2 class="subtitle">期中標準：完成工作會議會議紀錄至少2場次。<span class="badge" style="margin-left:10px;">實際完成5場專家小組會議，已超標達成</span></h2>
+  <div class="content">
+    <p style="font-size:14.5px;color:var(--text-muted);">會議功能：追蹤指引修正、案例彙整、手冊架構與跨計畫諮詢之決議。紀錄內容涵蓋議題、出席、討論摘要、決議事項、責任分工與預定完成日。</p>
+    <table class="gov">
+      <tr><th>場次</th><th>日期</th><th>重點摘要</th></tr>
+      <tr><td>第1組會議</td><td>115/4/16</td><td>IACUC政策管理類缺失複核，多案改分至「獸醫照護管理」與「計畫核定後監督」類別，並校準條文引用層級。</td></tr>
+      <tr><td>第2組會議</td><td>115/4/21</td><td>計畫審查與3R考量類缺失複核；指出部分案例「無法評估」係因查核意見未具體描述事實即逕列應改善，建議改善撰寫邏輯。</td></tr>
+      <tr><td>第3組會議</td><td>115/4/8</td><td>內部查核及PAM類缺失複核；釐清PAM未落實與獸醫照護管理之界線，刪除重複代表案例。</td></tr>
+      <tr><td>第4組會議</td><td>115/4/17</td><td>獸醫照護管理類缺失複核；疼痛等級勾選錯誤、麻醉訓練文件等案例之嚴重性與條文校準。</td></tr>
+      <tr><td>第5組會議</td><td>115/4/10</td><td>動物房舍與支援區域類缺失複核；環境換氣率、噪音、飼料效期、IACUC編號標示等案例討論。</td></tr>
+    </table>
+    <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">佐證資料：細部一佐證／0408、0410、0416、0417、0421標準案例小組會議紀錄(各PDF)；主持人均為陳穎萱助理、記錄為傅怡靜助理。</p>
+    <div class="photonote">
+      <div class="pn-icon">📷</div>
+      <div>
+        <b>建議插入位置：工作會議出席人數紀錄</b>
+        <div class="pn-text">若有各場次會議簽到表、視訊截圖或出席人數統計，建議於本頁表格右側補充小型圖卡，呈現5場會議實際出席之委員人數與專業領域分布，強化「跨領域專家參與」之佐證力。</div>
+      </div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 13 (section divider) ----------
+SLIDES.push(`
+<div class="slide section-divider dark">
+  <div class="big-num">03</div>
+  <div class="partlabel">第三部分</div>
+  <h1>細部計畫二執行成果</h1>
+  <h2 class="subtitle" style="max-width:700px;">優化動物科學應用機構監督及管理機制（115農科-2.6.2-動-02(2)）</h2>
+  <div class="cardgrid cols-4" style="margin-top:20px;">
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">計畫主持人</h3><p style="color:var(--ice);">王家琪 教授</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">執行機構</h3><p style="color:var(--ice);">國立臺灣大學<br>獸醫學系(所)</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">115年度預算</h3><p style="color:var(--ice);">1,200 千元（工作比重 22.86%）</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">期中評核標準</h3><p style="color:var(--ice);">2 項（全數達成）</p></div>
+  </div>
+</div>`);
+
+// ---------- Slide 14 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>細部計畫二｜概覽與115年度工作主軸</h1>
+  <div class="content">
+    <div class="stat-row">
+      <div class="stat-box"><div class="num">1,200<small style="font-size:16px;">千元</small></div><div class="lbl">115年預算</div></div>
+      <div class="stat-box accent"><div class="num">50%</div><div class="lbl">Q2 期中執行進度</div></div>
+    </div>
+    <h3 style="color:var(--navy);margin:16px 0 8px;">115年度工作主軸</h3>
+    <ul class="checklist">
+      <li><span class="tick">•</span>研析輔導平台常見疑問，彙整至少20題常見問題集（FAQ）1份</li>
+      <li><span class="tick">•</span>完成執行秘書工作職能需求問卷設計1式，回收至少5份以上</li>
+      <li><span class="tick">•</span>彙整輔導與訪查案例，協助《IACUC管理研析報告》草撰</li>
+      <li><span class="tick">•</span>辦理工作坊或座談會至少3場次（期末）</li>
+    </ul>
+    <h3 style="color:var(--navy);margin:16px 0 8px;">期中評核標準</h3>
+    <table class="gov">
+      <tr><th style="width:40px;">項次</th><th>評核標準</th></tr>
+      <tr><td>1</td><td>研析輔導平台常見疑問，彙整至少20題常見問題集1份</td></tr>
+      <tr><td>2</td><td>完成執秘工作職能需求問卷設計1式，回收至少5份</td></tr>
+    </table>
+  </div>
+</div>`);
+
+// ---------- Slide 15 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準 2-1：研析歷年輔導紀錄</h1>
+  <h2 class="subtitle">期中標準：研析輔導平台常見疑問，彙整至少20題常見問題集1份。</h2>
+  <div class="content">
+    <p style="font-size:14px;color:var(--text-muted);">參考佐證：細部計畫二工作會議「實驗動物輔導平台的回顧分析」會議紀錄（0108第1次、0323第2次），就歷年機構諮詢案例進行回顧分析，作為FAQ題庫之素材來源。</p>
+    <div class="photonote">
+      <div class="pn-icon">📷</div>
+      <div><b>建議插入位置：FAQ彙整成果頁面截圖</b><div class="pn-text">建議補充FAQ問題集文件首頁或目錄截圖，呈現實際彙整之20題分類，加強完成度之視覺佐證。</div></div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 16 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準 2-2：執秘工作職能需求問卷</h1>
+  <h2 class="subtitle">期中標準：完成執秘工作職能需求問卷設計1式，回收至少5份。</h2>
+  <div class="content">
+    <div class="photonote">
+      <div class="pn-icon">📷</div>
+      <div><b>建議插入位置：問卷設計與回收統計</b><div class="pn-text">建議插入問卷題型截圖及回收份數統計圖（如已回收5份以上之機構/單位分布圖），以圖表呈現回收進度。</div></div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 17 (section divider) ----------
+SLIDES.push(`
+<div class="slide section-divider dark">
+  <div class="big-num">04</div>
+  <div class="partlabel">第四部分</div>
+  <h1>細部計畫三執行成果</h1>
+  <h2 class="subtitle" style="max-width:700px;">優化IACUC審查及監督水生實驗動物福利模式（115農科-2.6.2-動-02(3)）</h2>
+  <div class="cardgrid cols-4" style="margin-top:20px;">
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">計畫主持人</h3><p style="color:var(--ice);">黃之暘 副教授</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">執行機構</h3><p style="color:var(--ice);">國立臺灣海洋大學<br>水產養殖學系</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">115年度預算</h3><p style="color:var(--ice);">1,300 千元（工作比重 24.76%）</p></div>
+    <div class="card" style="background:rgba(255,255,255,.1);"><h3 style="color:#fff;">期中評核標準</h3><p style="color:var(--ice);">5 項（全數達成）</p></div>
+  </div>
+</div>`);
+
+// ---------- Slide 18 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>細部計畫三｜概覽與水生實驗動物IACUC研究主軸</h1>
+  <div class="content">
+    <div class="stat-row">
+      <div class="stat-box"><div class="num">1,300<small style="font-size:16px;">千元</small></div><div class="lbl">115年預算</div></div>
+      <div class="stat-box accent"><div class="num">56%</div><div class="lbl">Q2 期中執行進度</div></div>
+    </div>
+    <h3 style="color:var(--navy);margin:16px 0 8px;">115年度工作主軸</h3>
+    <ul class="checklist">
+      <li><span class="tick">3-1</span>水生動物福利國際法規與制度彙整</li>
+      <li><span class="tick">3-2</span>臺灣機構水生動物操作流程調查</li>
+      <li><span class="tick">3-3</span>機構現況調查與深度訪談</li>
+      <li><span class="tick">3-4</span>主題講習與技術培訓 2場次</li>
+      <li><span class="tick">3-5</span>水生與陸域專家諮詢會議 1場次</li>
+    </ul>
+    <p style="font-size:13px;color:var(--text-muted);margin-top:10px;">佐證資料：細部計畫三工作會議第1次會議記錄（115/1/14，國立海洋大學生科系），已就《Guide》水生動物相關條文盤點完成，並提供《水生動物福利指南》補充資料。</p>
+  </div>
+</div>`);
+
+// ---------- Slide 19 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準 3-1：水生動物福利國際法規與制度彙整</h1>
+  <h2 class="subtitle">期中標準：完成水生實驗動物福利國際法規與相關制度彙整報告 1 篇。</h2>
+  <div class="content">
+    <div class="quote-block">參考美國動物福利法案(AWA)、《The Guide》及美國公共衛生局政策架構，並比對我國動物保護法涵蓋科學應用範疇；同時納入 AAALAC「關懷文化（Culture of Care）」精神，主張照護責任應由上而下傳遞，管理架構宜由「處罰導向」轉為「支持導向」。</div>
+    <div class="evidence-tag">AWA 動物福利法案</div><div class="evidence-tag">The Guide</div><div class="evidence-tag">Culture of Care</div><div class="evidence-tag">水生動物福利指南</div>
+  </div>
+</div>`);
+
+// ---------- Slide 20 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準 3-2：臺灣機構水生動物操作流程調查</h1>
+  <h2 class="subtitle">期中標準：完成臺灣研究機構水生實驗動物福利操作流程與挑戰報告 1 篇。</h2>
+  <div class="content">
+    <div class="cardgrid cols-2">
+      <div class="card"><h3>研究 vs. 農業飼養標準差異</h3><p>醫學研究（如斑馬魚）強調環境標準化以確保實驗可重複性；農業/漁業研究（如育種、飼料試驗）則須符合現場生產規範，否則結果不具應用價值。</p></div>
+      <div class="card"><h3>數量計算與減量原則</h3><p>以斑馬魚為例，採「受精後五日（5 dpf）」作為計數起點；繁殖過程之自然死亡不計入年度使用量，避免數據異常膨脹。</p></div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 21 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準 3-3：機構現況調查與深度訪談</h1>
+  <h2 class="subtitle">期中標準：完成水生實驗動物福利之機構現況調查與深度訪談報告 1 篇。</h2>
+  <div class="content">
+    <div class="card"><h3>線上表單與勾選清單之開發</h3><p>設計預設常見科學理由與操作規範之線上勾選清單，協助申請者精確說明操作細節，並輔以「常見物種（如吳郭魚）」簡化規範內容，提升審查效率與一致性。</p></div>
+  </div>
+</div>`);
+
+// ---------- Slide 22 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準 3-4：主題講習與技術培訓2場次</h1>
+  <h2 class="subtitle">期中標準：辦理主題講習與技術培訓 2 場次。</h2>
+  <div class="content">
+    <div class="card"><h3>安樂死與環境管理原則</h3><p>培訓內容涵蓋水生動物安樂死方法（參考美國AVMA，依魚種冷熱帶特性調整冰浴方式）及環境管理（大環境房舍、小環境水質光照，如斑馬魚28°C水溫管理）。</p></div>
+    <div class="photonote">
+      <div class="pn-icon">📷</div>
+      <div><b>建議插入位置：培訓場次照片</b><div class="pn-text">建議補充2場主題講習/技術培訓之現場照片或簽到統計，呈現參與人數與實作演練畫面。</div></div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 23 ----------
+SLIDES.push(`
+<div class="slide">
+  <div class="eyebrow">115年度期中審查</div>
+  <h1>期中標準 3-5：水生與陸域專家學者諮詢會議</h1>
+  <h2 class="subtitle">期中標準：辦理水生與陸域專家學者諮詢檢視規範草案會議 1 場次。</h2>
+  <div class="content">
+    <p style="font-size:14.5px;color:var(--text-muted);">115年1月14日於國立海洋大學生科系召開第1次工作會議，由劉逸軒教授主持，黃之暘副教授與會，就水生動物3R原則落實、IACUC自我審查與外部查核界線進行討論，會後由NTU提供指引修正檔案供水生領域延伸參考。</p>
+    <div class="photonote">
+      <div class="pn-icon">📷</div>
+      <div><b>建議插入位置：諮詢會議合影</b><div class="pn-text">建議補充水生與陸域專家諮詢會議之現場合影或視訊會議截圖，佐證跨領域專家共同審視規範草案之事實。</div></div>
+    </div>
+  </div>
+</div>`);
+
+// ---------- Slide 24 ----------
+SLIDES.push(`
+<div class="slide dark" style="justify-content:center;align-items:center;text-align:center;background:radial-gradient(circle at 50% 30%, #2b3a8f 0%, var(--navy-deep) 70%);">
+  <h1 style="font-size:42px;">敬請委員指正</h1>
+  <p style="color:var(--ice);font-size:15px;margin-top:14px;">資料依據：115核定本、細部計畫一變更（0604）、0728期中簡報範本</p>
+</div>`);
+
+// ===== RENDER =====
+const LOCAL_CACHE_KEY = 'midterm_deck_v2_edits';
+const FIREBASE_CFG_KEY = 'midterm_deck_v2_firebase_cfg';
+const deck = document.getElementById('deck');
+SLIDES.forEach((html,i)=>{
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html.trim();
+  const el = wrap.firstElementChild;
+  el.dataset.index = i;
+  deck.appendChild(el);
+});
+const slideEls = Array.from(document.querySelectorAll('.slide'));
+
+// ---- make text editable for collaborators ----
+const EDITABLE_SELECTOR = 'h1, h2.subtitle, p, li, td, th, .num, .lbl, .who, .ttitle, .tdesc, .pn-text, .partlabel, .eyebrow, .badge, .pbar-label, .pbar-pct, .evidence-tag, b';
+function applyEditable(el){
+  el.querySelectorAll(EDITABLE_SELECTOR).forEach(node=>{ node.setAttribute('contenteditable','true'); });
+}
+slideEls.forEach(applyEditable);
+
+// ---- sidebar TOC ----
+const SECTION_AT = {4:'第二部分｜細部計畫一', 12:'第三部分｜細部計畫二', 16:'第四部分｜細部計畫三'};
+const sbList = document.getElementById('sbList');
+const sbItems = [];
+slideEls.forEach((el,i)=>{
+  if(SECTION_AT[i]){
+    const sec = document.createElement('div');
+    sec.className = 'sb-section';
+    sec.textContent = SECTION_AT[i];
+    sbList.appendChild(sec);
+  }
+  const titleEl = el.querySelector('h1');
+  const item = document.createElement('div');
+  item.className = 'sb-item';
+  item.dataset.index = i;
+  item.innerHTML = `<span class="sb-num">${i+1}</span><span class="sb-label">${titleEl ? titleEl.textContent : 'Slide '+(i+1)}</span>`;
+  item.addEventListener('click', ()=>{ goTo(i); if(window.innerWidth<=900) document.getElementById('sidebar').classList.remove('open'); });
+  sbList.appendChild(item);
+  sbItems.push(item);
+});
+function updateSidebarLabel(i){
+  const h1 = slideEls[i].querySelector('h1');
+  if(h1 && sbItems[i]) sbItems[i].querySelector('.sb-label').textContent = h1.textContent;
+}
+document.getElementById('sbSearch').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  sbItems.forEach(item=>{
+    const txt = item.querySelector('.sb-label').textContent.toLowerCase();
+    item.style.display = (!q || txt.includes(q)) ? 'flex' : 'none';
+  });
+});
+document.getElementById('sbToggle').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+// ===== COLLABORATIVE SYNC (Firebase Realtime Database, with localStorage fallback) =====
+const saveStatusEl = document.getElementById('saveStatus');
+const presencePill = document.getElementById('presencePill');
+const presenceText = document.getElementById('presenceText');
+const setupBanner = document.getElementById('setupBanner');
+let activeEditSlideIndex = null;
+deck.addEventListener('focusin', e=>{ if(e.target.isContentEditable) activeEditSlideIndex = Number(e.target.closest('.slide').dataset.index); });
+deck.addEventListener('focusout', e=>{ if(e.target.isContentEditable) activeEditSlideIndex = null; });
+
+// Pre-configured Firebase project (115midterm-deck) so this file works for every
+// collaborator out of the box — no per-user setup needed. The Realtime Database
+// security rules restrict access to this project's data, not anyone else's.
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD-YmRY1UhwhsN8GjsF2yVgPzEVTnbNILU",
+  authDomain: "midterm-deck.firebaseapp.com",
+  databaseURL: "https://midterm-deck-default-rtdb.firebaseio.com",
+  projectId: "midterm-deck",
+  storageBucket: "midterm-deck.firebasestorage.app",
+  messagingSenderId: "34309865832",
+  appId: "1:34309865832:web:87eeb8186e71af6fab56dd"
+};
+function loadFirebaseConfig(){
+  try{ const raw = localStorage.getItem(FIREBASE_CFG_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return DEFAULT_FIREBASE_CONFIG;
+}
+const firebaseConfig = loadFirebaseConfig();
+
+let saveTimers = {};
+function debouncedLocalCache(){
+  clearTimeout(saveTimers._local);
+  saveTimers._local = setTimeout(()=>{
+    const data = {};
+    slideEls.forEach((el,i)=>{ data[i]=el.innerHTML; });
+    localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(data));
+  }, 500);
+}
+
+if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
+  // ---- ONLINE MODE: real-time sync via Firebase ----
+  setupBanner.style.display = 'none';
+  try{
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    slideEls.forEach((el,i)=>{
+      const ref = db.ref('slides/'+i+'/html');
+      ref.once('value').then(snap=>{
+        if(snap.exists()){
+          el.innerHTML = snap.val();
+          applyEditable(el);
+          updateSidebarLabel(i);
+        }else{
+          ref.set(el.innerHTML);
+        }
+        ref.on('value', snap2=>{
+          if(!snap2.exists()) return;
+          if(activeEditSlideIndex === i) return; // don't clobber the person currently typing here
+          const val = snap2.val();
+          if(val !== el.innerHTML){
+            el.innerHTML = val;
+            applyEditable(el);
+            updateSidebarLabel(i);
+          }
+        });
+      });
+    });
+
+    deck.addEventListener('input', (e)=>{
+      const slideEl = e.target.closest('.slide');
+      if(!slideEl) return;
+      const i = Number(slideEl.dataset.index);
+      saveStatusEl.textContent = '同步中…';
+      debouncedLocalCache();
+      clearTimeout(saveTimers[i]);
+      saveTimers[i] = setTimeout(()=>{
+        db.ref('slides/'+i+'/html').set(slideEl.innerHTML);
+        saveStatusEl.textContent = '已即時同步給所有人';
+      }, 450);
+    });
+
+    // presence
+    const presenceRef = db.ref('presence').push();
+    presenceRef.set({ joinedAt: Date.now() });
+    presenceRef.onDisconnect().remove();
+    db.ref('presence').on('value', snap=>{
+      const count = snap.exists() ? Object.keys(snap.val()).length : 1;
+      presencePill.classList.remove('offline');
+      presenceText.textContent = `${count} 人線上共編中`;
+    });
+  }catch(err){
+    console.error('Firebase init failed', err);
+    presenceText.textContent = '連線失敗，已切換離線模式';
+    setupBanner.style.display = 'flex';
+    enableOfflineMode();
+  }
+}else{
+  enableOfflineMode();
+}
+
+function enableOfflineMode(){
+  let savedEdits = {};
+  try{ savedEdits = JSON.parse(localStorage.getItem(LOCAL_CACHE_KEY) || '{}'); }catch(e){ savedEdits = {}; }
+  slideEls.forEach((el,i)=>{ if(savedEdits[i]){ el.innerHTML = savedEdits[i]; applyEditable(el); updateSidebarLabel(i); } });
+  deck.addEventListener('input', ()=>{
+    saveStatusEl.textContent = '編輯中…';
+    debouncedLocalCache();
+    clearTimeout(saveTimers._status);
+    saveTimers._status = setTimeout(()=>{ saveStatusEl.textContent = '已自動儲存（僅本機瀏覽器，未與他人同步）'; }, 550);
+  });
+}
+
+// ---- setup modal wiring ----
+const setupModal = document.getElementById('setupModal');
+document.getElementById('openSetupBtn').addEventListener('click', ()=> setupModal.classList.add('open'));
+document.getElementById('closeBannerBtn').addEventListener('click', ()=> setupBanner.style.display='none');
+document.getElementById('closeCfgBtn').addEventListener('click', ()=> setupModal.classList.remove('open'));
+document.getElementById('saveCfgBtn').addEventListener('click', ()=>{
+  const raw = document.getElementById('cfgInput').value.trim();
+  if(!raw){ alert('請先貼上 Firebase 設定內容'); return; }
+  let cfg;
+  try{ cfg = JSON.parse(raw); }
+  catch(e){
+    try{ cfg = new Function('return (' + raw.replace(/;\s*$/,'') + ')')(); }
+    catch(e2){ alert('無法解析貼上的內容，請確認是否完整複製了 firebaseConfig 的物件內容'); return; }
+  }
+  if(!cfg || !cfg.apiKey || !cfg.databaseURL){ alert('設定內容看起來不完整，請確認包含 apiKey 與 databaseURL'); return; }
+  localStorage.setItem(FIREBASE_CFG_KEY, JSON.stringify(cfg));
+  alert('設定已儲存，頁面將重新整理以套用即時共編。');
+  location.reload();
+});
+
+// ---- nav ----
+let current = 0;
+const dotsEl = document.getElementById('dots');
+slideEls.forEach((_,i)=>{
+  const d = document.createElement('span');
+  d.addEventListener('click',()=>goTo(i));
+  dotsEl.appendChild(d);
+});
+function render(){
+  slideEls.forEach((el,i)=>el.classList.toggle('active', i===current));
+  Array.from(dotsEl.children).forEach((d,i)=>d.classList.toggle('on', i===current));
+  sbItems.forEach((it,i)=>{
+    it.classList.toggle('on', i===current);
+    if(i===current) it.scrollIntoView({block:'nearest'});
+  });
+  document.getElementById('counter').textContent = `${current+1} / ${slideEls.length}`;
+}
+function goTo(i){ current = Math.max(0, Math.min(slideEls.length-1, i)); render(); }
+document.getElementById('prevBtn').addEventListener('click',()=>goTo(current-1));
+document.getElementById('nextBtn').addEventListener('click',()=>goTo(current+1));
+document.addEventListener('keydown',(e)=>{
+  const isEditing = document.activeElement && document.activeElement.isContentEditable;
+  if(isEditing) return;
+  if(['ArrowRight','PageDown',' '].includes(e.key)) goTo(current+1);
+  if(['ArrowLeft','PageUp'].includes(e.key)) goTo(current-1);
+  if(e.key==='Home') goTo(0);
+  if(e.key==='End') goTo(slideEls.length-1);
+});
+let touchX=null;
+deck.addEventListener('touchstart', e=>touchX=e.touches[0].clientX);
+deck.addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(dx>60) goTo(current-1);
+  if(dx<-60) goTo(current+1);
+  touchX=null;
+});
+render();
+
+// ===== EXPORT TO PPTX =====
+function cleanText(t){ return (t||'').replace(/\s+/g,' ').trim(); }
+
+document.getElementById('exportBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('exportBtn');
+  btn.textContent = '匯出中…';
+  btn.disabled = true;
+  try{
+    const pptx = new PptxGenJS();
+    pptx.defineLayout({ name:'WIDE', width:13.33, height:7.5 });
+    pptx.layout = 'WIDE';
+    const NAVY = '1E2761', ACCENT = 'E0A458', MUTED = '5A6178', WHITE='FFFFFF', DARKBG='141A45';
+
+    slideEls.forEach((el)=>{
+      const isDark = el.classList.contains('dark');
+      const s = pptx.addSlide();
+      s.background = { color: isDark ? DARKBG : WHITE };
+
+      const eyebrow = cleanText(el.querySelector('.eyebrow, .partlabel')?.textContent);
+      const titleEl = el.querySelector('h1');
+      const subEl = el.querySelector('h2.subtitle');
+      const title = cleanText(titleEl?.textContent);
+      const sub = cleanText(subEl?.textContent);
+
+      let y = 0.4;
+      if(eyebrow){
+        s.addText(eyebrow, {x:0.6,y:y,w:12,h:0.35,fontSize:11,color:ACCENT,bold:true,charSpacing:2});
+        y += 0.4;
+      }
+      if(title){
+        s.addText(title, {x:0.6,y:y,w:12.1,h:0.9,fontSize:26,color:isDark?WHITE:NAVY,bold:true});
+        y += 0.85;
+      }
+      if(sub){
+        s.addText(sub, {x:0.6,y:y,w:12.1,h:0.5,fontSize:13,color:isDark?'CADCFC':MUTED});
+        y += 0.55;
+      }
+
+      const bullets = [];
+      const contentRoot = el.querySelector('.content') || el;
+
+      contentRoot.querySelectorAll('table.gov').forEach(table=>{
+        const rows = Array.from(table.querySelectorAll('tr')).map(tr=>
+          Array.from(tr.querySelectorAll('th,td')).map(c=>cleanText(c.textContent))
+        );
+        if(rows.length){
+          const tRows = rows.map((r,ri)=> r.map(cellText=>({
+            text: cellText,
+            options: ri===0 ? {bold:true, color:WHITE, fill:{color:NAVY}, fontSize:10} : {fontSize:10, color:'1c1f2e'}
+          })));
+          s.addTable(tRows, {x:0.6,y:y,w:12.1,colW: Array(rows[0].length).fill(12.1/rows[0].length), autoPage:false, fontFace:'Microsoft JhengHei'});
+          y += Math.min(0.32*rows.length, 4.5) + 0.25;
+        }
+      });
+
+      contentRoot.querySelectorAll('.card').forEach(card=>{
+        const h = cleanText(card.querySelector('h3')?.textContent);
+        const p = cleanText(card.querySelector('p')?.textContent);
+        if(h || p) bullets.push({text: h ? `${h}：${p}` : p, options:{bullet:true, fontSize:12, color:'1c1f2e'}});
+      });
+      contentRoot.querySelectorAll('.stat-box').forEach(box=>{
+        const num = cleanText(box.querySelector('.num')?.textContent);
+        const lbl = cleanText(box.querySelector('.lbl')?.textContent);
+        const who = cleanText(box.querySelector('.who')?.textContent);
+        if(num||lbl) bullets.push({text:`${lbl}：${num}${who? '（'+who+'）':''}`, options:{bullet:true, fontSize:12, color:'1c1f2e'}});
+      });
+      contentRoot.querySelectorAll(':scope > ul.checklist > li, :scope > .timeline .tstep').forEach(li=>{
+        const t = cleanText(li.textContent);
+        if(t) bullets.push({text:t, options:{bullet:true, fontSize:12, color:'1c1f2e'}});
+      });
+      if(!bullets.length){
+        contentRoot.querySelectorAll('p, li').forEach(node=>{
+          if(node.closest('table.gov') || node.closest('.card') || node.closest('.stat-box')) return;
+          const t = cleanText(node.textContent);
+          if(t) bullets.push({text:t, options:{bullet:true, fontSize:12, color:'1c1f2e'}});
+        });
+      }
+      contentRoot.querySelectorAll('.photonote').forEach(note=>{
+        const t = cleanText(note.textContent);
+        if(t) bullets.push({text:'📷 '+t, options:{fontSize:10.5, italic:true, color:'A36A16', bullet:false}});
+      });
+
+      if(bullets.length){
+        s.addText(bullets, {x:0.6, y:y, w:12.1, h:Math.max(0.5, 7.0-y), fontSize:12, color: isDark? WHITE : '1c1f2e', valign:'top', lineSpacingMultiple:1.25});
+      }
+    });
+
+    await pptx.writeFile({ fileName: '期中簡報V2_互動編輯版.pptx' });
+  }catch(err){
+    console.error(err);
+    alert('匯出失敗，請查看主控台錯誤訊息：'+err.message);
+  }finally{
+    btn.textContent = '⬇ 下載 PPT';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
