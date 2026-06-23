@@ -72,6 +72,7 @@ html,body{margin:0;padding:0;height:100%;font-family:"標楷體","DFKai-SB","Mic
 
 /* watercolor lab-animal illustration shared by cover & closing slides */
 .lab-animals-art{width:340px;max-width:60%;height:auto;display:block;margin:0 auto 6px;}
+.slide-sync{display:contents;}
 
 /* CARDS */
 .cardgrid{display:grid;gap:20px;}
@@ -181,6 +182,11 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
 .photo-caption:focus{background:rgba(224,164,88,.1);border-radius:6px;}
 #photoBtn{background:rgba(255,255,255,.12);}
 #photoBtn:hover{background:rgba(255,255,255,.25);}
+#addPageBtn{background:rgba(255,255,255,.12);}
+#addPageBtn:hover{background:rgba(255,255,255,.25);}
+.page-del-btn{position:absolute;top:14px;right:14px;background:rgba(220,80,80,.14);color:#b23b3b;border:1px solid rgba(220,80,80,.35);border-radius:8px;padding:5px 12px;font-size:12.5px;cursor:pointer;z-index:5;}
+.page-del-btn:hover{background:rgba(220,80,80,.25);}
+.new-page-hint{font-size:13px;color:var(--text-muted);background:var(--card-bg);border-radius:10px;padding:14px 18px;margin-top:12px;}
 #fsBtn{background:rgba(255,255,255,.12);}
 #fsBtn:hover{background:rgba(255,255,255,.25);}
 #undoBtn{background:rgba(255,255,255,.12);}
@@ -250,6 +256,7 @@ body.fs-mode #sbToggle.show{opacity:1;}
       </div>
       <div id="dots"></div>
       <div class="btns">
+        <button id="addPageBtn" title="在目前這頁之後新增一張空白頁面，可自行編輯文字與插入照片">➕ 新增頁面</button>
         <button id="photoBtn">🖼️ 插入照片</button>
         <input type="file" id="photoInput" accept="image/*" hidden>
         <button id="exportBtn">⬇ 下載 PPT</button>
@@ -321,16 +328,18 @@ const LAB_ANIMALS_SVG = `
 SLIDES.push(`
 <div class="slide title-slide">
   ${LAB_ANIMALS_SVG}
-  <span class="tag">中華民國115年期中審查 · 審查用稿</span>
-  <h1>農業部115年度科技計畫期中審查報告</h1>
-  <h1 class="sub-h1">優化動物科學應用機構查核機制（3/4）</h1>
-  <div class="en">Optimize the inspection mechanism for the institution using animals for scientific application</div>
-  <div class="meta">
-    <div><b>114–116年</b>計畫期間</div>
-    <div><b>115年</b>本年度</div>
-    <div><b>國立臺灣大學</b>執行機構</div>
+  <div class="slide-sync">
+    <span class="tag">中華民國115年期中審查 · 審查用稿</span>
+    <h1>農業部115年度科技計畫期中審查報告</h1>
+    <h1 class="sub-h1">優化動物科學應用機構查核機制（3/4）</h1>
+    <div class="en">Optimize the inspection mechanism for the institution using animals for scientific application</div>
+    <div class="meta">
+      <div><b>114–116年</b>計畫期間</div>
+      <div><b>115年</b>本年度</div>
+      <div><b>國立臺灣大學</b>執行機構</div>
+    </div>
+    <div class="footer-org">國立臺灣大學 動物科學技術學系｜農業部科技計畫</div>
   </div>
-  <div class="footer-org">國立臺灣大學 動物科學技術學系｜農業部科技計畫</div>
 </div>`);
 
 // ---------- Slide 2 ----------
@@ -760,22 +769,44 @@ SLIDES.push(`
 SLIDES.push(`
 <div class="slide dark" style="justify-content:center;align-items:center;text-align:center;background:radial-gradient(circle at 50% 30%, #2b3a8f 0%, var(--navy-deep) 70%);">
   ${LAB_ANIMALS_SVG}
-  <h1 style="font-size:42px;">敬請委員指正</h1>
-  <p style="color:var(--ice);font-size:15px;margin-top:14px;">資料依據：115核定本、細部計畫一變更（0604）、0728期中簡報範本</p>
+  <div class="slide-sync">
+    <h1 style="font-size:42px;">敬請委員指正</h1>
+    <p style="color:var(--ice);font-size:15px;margin-top:14px;">資料依據：115核定本、細部計畫一變更（0604）、0728期中簡報範本</p>
+  </div>
 </div>`);
 
 // ===== RENDER =====
 const LOCAL_CACHE_KEY = 'midterm_deck_v2_edits';
 const FIREBASE_CFG_KEY = 'midterm_deck_v2_firebase_cfg';
 const deck = document.getElementById('deck');
+
+// Every slide's editable/syncable content lives inside a ".slide-sync" wrapper.
+// Decorative elements placed OUTSIDE that wrapper (e.g. the cover/closing
+// illustrations) are part of the template and are never overwritten by a
+// Firebase sync, so template updates to them always stick.
+function ensureSlideSync(el){
+  let sync = el.querySelector(':scope > .slide-sync');
+  if(!sync){
+    sync = document.createElement('div');
+    sync.className = 'slide-sync';
+    while(el.firstChild) sync.appendChild(el.firstChild);
+    el.appendChild(sync);
+  }
+  return sync;
+}
+function syncRoot(el){ return el.querySelector(':scope > .slide-sync') || el; }
+
+let slideEls = [];
 SLIDES.forEach((html,i)=>{
   const wrap = document.createElement('div');
   wrap.innerHTML = html.trim();
   const el = wrap.firstElementChild;
   el.dataset.index = i;
+  el.dataset.fbkey = String(i); // permanent Firebase key — never renumbered
+  ensureSlideSync(el);
   deck.appendChild(el);
+  slideEls.push(el);
 });
-const slideEls = Array.from(document.querySelectorAll('.slide'));
 
 // ---- make text editable for collaborators ----
 const EDITABLE_SELECTOR = 'h1, h2.subtitle, p, li, td, th, .num, .lbl, .who, .ttitle, .tdesc, .pn-text, .partlabel, .eyebrow, .badge, .pbar-label, .pbar-pct, .evidence-tag, b';
@@ -784,30 +815,38 @@ function applyEditable(el){
 }
 slideEls.forEach(applyEditable);
 
-// ---- sidebar TOC ----
-const SECTION_AT = {4:'第二部分｜細部計畫一', 12:'第三部分｜細部計畫二', 16:'第四部分｜細部計畫三'};
+// ---- sidebar TOC (rebuildable so pages can be added later) ----
 const sbList = document.getElementById('sbList');
-const sbItems = [];
-slideEls.forEach((el,i)=>{
-  if(SECTION_AT[i]){
-    const sec = document.createElement('div');
-    sec.className = 'sb-section';
-    sec.textContent = SECTION_AT[i];
-    sbList.appendChild(sec);
-  }
-  const titleEl = el.querySelector('h1');
-  const item = document.createElement('div');
-  item.className = 'sb-item';
-  item.dataset.index = i;
-  item.innerHTML = `<span class="sb-num">${i+1}</span><span class="sb-label">${titleEl ? titleEl.textContent : 'Slide '+(i+1)}</span>`;
-  item.addEventListener('click', ()=>{ goTo(i); if(window.innerWidth<=900) document.getElementById('sidebar').classList.remove('open'); });
-  sbList.appendChild(item);
-  sbItems.push(item);
-});
+let sbItems = [];
+function renumberSlides(){
+  slideEls.forEach((el,idx)=>{ el.dataset.index = idx; });
+}
+function rebuildSidebar(){
+  sbList.innerHTML = '';
+  sbItems = [];
+  slideEls.forEach((el,i)=>{
+    if(el.classList.contains('section-divider')){
+      const part = el.querySelector('.partlabel')?.textContent.trim() || '';
+      const name = el.querySelector('h1')?.textContent.trim() || '';
+      const sec = document.createElement('div');
+      sec.className = 'sb-section';
+      sec.textContent = part && name ? `${part}｜${name}` : (part || name);
+      sbList.appendChild(sec);
+    }
+    const titleEl = el.querySelector('h1');
+    const item = document.createElement('div');
+    item.className = 'sb-item';
+    item.innerHTML = `<span class="sb-num">${i+1}</span><span class="sb-label">${titleEl ? titleEl.textContent : 'Slide '+(i+1)}</span>`;
+    item.addEventListener('click', ()=>{ goTo(i); if(window.innerWidth<=900) document.getElementById('sidebar').classList.remove('open'); });
+    sbList.appendChild(item);
+    sbItems.push(item);
+  });
+}
 function updateSidebarLabel(i){
   const h1 = slideEls[i].querySelector('h1');
   if(h1 && sbItems[i]) sbItems[i].querySelector('.sb-label').textContent = h1.textContent;
 }
+rebuildSidebar();
 document.getElementById('sbSearch').addEventListener('input', (e)=>{
   const q = e.target.value.trim().toLowerCase();
   sbItems.forEach(item=>{
@@ -824,9 +863,9 @@ const saveStatusEl = document.getElementById('saveStatus');
 const presencePill = document.getElementById('presencePill');
 const presenceText = document.getElementById('presenceText');
 const setupBanner = document.getElementById('setupBanner');
-let activeEditSlideIndex = null;
-deck.addEventListener('focusin', e=>{ if(e.target.isContentEditable) activeEditSlideIndex = Number(e.target.closest('.slide').dataset.index); });
-deck.addEventListener('focusout', e=>{ if(e.target.isContentEditable) activeEditSlideIndex = null; });
+let activeEditFbKey = null;
+deck.addEventListener('focusin', e=>{ if(e.target.isContentEditable){ const s = e.target.closest('.slide'); activeEditFbKey = s ? s.dataset.fbkey : null; } });
+deck.addEventListener('focusout', e=>{ if(e.target.isContentEditable) activeEditFbKey = null; });
 
 // Pre-configured Firebase project (115midterm-deck) so this file works for every
 // collaborator out of the box — no per-user setup needed. The Realtime Database
@@ -851,9 +890,65 @@ function debouncedLocalCache(){
   clearTimeout(saveTimers._local);
   saveTimers._local = setTimeout(()=>{
     const data = {};
-    slideEls.forEach((el,i)=>{ data[i]=el.innerHTML; });
+    slideEls.forEach(el=>{ data[el.dataset.fbkey] = syncRoot(el).innerHTML; });
     localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(data));
   }, 500);
+}
+
+let db = null; // set once Firebase initializes successfully; used by addNewSlide()/deleteSlide() later
+
+// ---- shared page order (so add/delete-page propagates to every collaborator) ----
+function currentOrder(){ return slideEls.map(el=>el.dataset.fbkey); }
+function reconcileOrder(order){
+  if(!Array.isArray(order) || !order.length) return;
+  const byKey = new Map(slideEls.map(el=>[el.dataset.fbkey, el]));
+  const ordered = [];
+  order.forEach(fbkey=>{
+    let el = byKey.get(fbkey);
+    if(!el){
+      // someone else added this page — build a local shell, real content arrives via setupSlideSync
+      const wrap = document.createElement('div');
+      wrap.innerHTML = makeNewSlideTemplate().trim();
+      el = wrap.firstElementChild;
+      el.dataset.fbkey = fbkey;
+      applyEditable(el);
+      if(db) setupSlideSync(el);
+    }
+    ordered.push(el);
+    byKey.delete(fbkey);
+  });
+  byKey.forEach(el=>el.remove()); // removed by someone else
+  ordered.forEach(el=>deck.appendChild(el)); // appendChild on an existing node reorders it
+  slideEls = ordered;
+  renumberSlides();
+  rebuildSidebar();
+  rebuildDots();
+  if(current >= slideEls.length) current = slideEls.length - 1;
+  render();
+}
+function setupSlideSync(el){
+  const fbkey = el.dataset.fbkey;
+  const ref = db.ref('slides/'+fbkey+'/html');
+  ref.once('value').then(snap=>{
+    if(snap.exists()){
+      syncRoot(el).innerHTML = snap.val();
+      applyEditable(el);
+      updateSidebarLabel(Number(el.dataset.index));
+    }else{
+      ref.set(syncRoot(el).innerHTML);
+    }
+    ref.on('value', snap2=>{
+      if(!snap2.exists()) return;
+      if(activeEditFbKey === fbkey) return; // don't clobber the person currently typing here
+      const val = snap2.val();
+      const root = syncRoot(el);
+      if(val !== root.innerHTML){
+        root.innerHTML = val;
+        applyEditable(el);
+        updateSidebarLabel(Number(el.dataset.index));
+      }
+    });
+  });
 }
 
 if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
@@ -861,40 +956,29 @@ if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
   setupBanner.style.display = 'none';
   try{
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    db = firebase.database();
 
-    slideEls.forEach((el,i)=>{
-      const ref = db.ref('slides/'+i+'/html');
-      ref.once('value').then(snap=>{
-        if(snap.exists()){
-          el.innerHTML = snap.val();
-          applyEditable(el);
-          updateSidebarLabel(i);
-        }else{
-          ref.set(el.innerHTML);
-        }
-        ref.on('value', snap2=>{
-          if(!snap2.exists()) return;
-          if(activeEditSlideIndex === i) return; // don't clobber the person currently typing here
-          const val = snap2.val();
-          if(val !== el.innerHTML){
-            el.innerHTML = val;
-            applyEditable(el);
-            updateSidebarLabel(i);
-          }
-        });
-      });
+    slideEls.forEach(setupSlideSync);
+
+    // Shared page order so a page added/removed by one collaborator appears
+    // for everyone, not just the person who clicked the button.
+    const orderRef = db.ref('meta/pageOrder');
+    orderRef.once('value').then(snap=>{
+      if(!snap.exists()) orderRef.set(currentOrder());
+    });
+    orderRef.on('value', snap=>{
+      if(snap.exists()) reconcileOrder(snap.val());
     });
 
     deck.addEventListener('input', (e)=>{
       const slideEl = e.target.closest('.slide');
       if(!slideEl) return;
-      const i = Number(slideEl.dataset.index);
+      const fbkey = slideEl.dataset.fbkey;
       saveStatusEl.textContent = '同步中…';
       debouncedLocalCache();
-      clearTimeout(saveTimers[i]);
-      saveTimers[i] = setTimeout(()=>{
-        db.ref('slides/'+i+'/html').set(slideEl.innerHTML);
+      clearTimeout(saveTimers[fbkey]);
+      saveTimers[fbkey] = setTimeout(()=>{
+        db.ref('slides/'+fbkey+'/html').set(syncRoot(slideEl).innerHTML);
         saveStatusEl.textContent = '已即時同步給所有人';
       }, 450);
     });
@@ -921,7 +1005,10 @@ if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
 function enableOfflineMode(){
   let savedEdits = {};
   try{ savedEdits = JSON.parse(localStorage.getItem(LOCAL_CACHE_KEY) || '{}'); }catch(e){ savedEdits = {}; }
-  slideEls.forEach((el,i)=>{ if(savedEdits[i]){ el.innerHTML = savedEdits[i]; applyEditable(el); updateSidebarLabel(i); } });
+  slideEls.forEach(el=>{
+    const v = savedEdits[el.dataset.fbkey];
+    if(v){ syncRoot(el).innerHTML = v; applyEditable(el); updateSidebarLabel(Number(el.dataset.index)); }
+  });
   deck.addEventListener('input', ()=>{
     saveStatusEl.textContent = '編輯中…';
     debouncedLocalCache();
@@ -953,11 +1040,15 @@ document.getElementById('saveCfgBtn').addEventListener('click', ()=>{
 // ---- nav ----
 let current = 0;
 const dotsEl = document.getElementById('dots');
-slideEls.forEach((_,i)=>{
-  const d = document.createElement('span');
-  d.addEventListener('click',()=>goTo(i));
-  dotsEl.appendChild(d);
-});
+function rebuildDots(){
+  dotsEl.innerHTML = '';
+  slideEls.forEach((_,i)=>{
+    const d = document.createElement('span');
+    d.addEventListener('click',()=>goTo(i));
+    dotsEl.appendChild(d);
+  });
+}
+rebuildDots();
 function render(){
   slideEls.forEach((el,i)=>el.classList.toggle('active', i===current));
   Array.from(dotsEl.children).forEach((d,i)=>d.classList.toggle('on', i===current));
@@ -1073,19 +1164,20 @@ function insertPhotoIntoSlide(slideEl, dataUrl){
 }
 // ---- undo-last-delete safety net ----
 const undoBtn = document.getElementById('undoBtn');
-let lastDeleted = null; // { slideIndex, html }
+let lastDeleted = null; // { fbkey, html }
 function recordBeforeDelete(slideEl){
-  const i = Number(slideEl.dataset.index);
-  lastDeleted = { slideIndex: i, html: slideEl.innerHTML };
+  lastDeleted = { fbkey: slideEl.dataset.fbkey, html: syncRoot(slideEl).innerHTML };
   undoBtn.disabled = false;
 }
 function undoLastDelete(){
   if(!lastDeleted) return;
-  const slideEl = slideEls[lastDeleted.slideIndex];
-  slideEl.innerHTML = lastDeleted.html;
-  applyEditable(slideEl);
-  updateSidebarLabel(lastDeleted.slideIndex);
-  slideEl.dispatchEvent(new Event('input', {bubbles:true}));
+  const slideEl = slideEls.find(el=>el.dataset.fbkey === lastDeleted.fbkey);
+  if(slideEl){
+    syncRoot(slideEl).innerHTML = lastDeleted.html;
+    applyEditable(slideEl);
+    updateSidebarLabel(Number(slideEl.dataset.index));
+    slideEl.dispatchEvent(new Event('input', {bubbles:true}));
+  }
   lastDeleted = null;
   undoBtn.disabled = true;
   undoBtn.classList.add('flash');
@@ -1121,10 +1213,66 @@ deck.addEventListener('click', (e)=>{
     if(slideEl) slideEl.dispatchEvent(new Event('input', {bubbles:true}));
     return;
   }
+  const delPage = e.target.closest('.page-del-btn');
+  if(delPage){
+    const slideEl = delPage.closest('.slide');
+    if(slideEl) deleteSlide(slideEl);
+    return;
+  }
 });
 document.getElementById('photoBtn').addEventListener('click', ()=>{
   document.getElementById('photoInput').click();
 });
+
+// ===== ADD / DELETE PAGES (teacher-authored extra slides) =====
+function makeNewSlideTemplate(){
+  return `
+<div class="slide">
+  <div class="slide-sync">
+    <div class="eyebrow">115年度期中審查</div>
+    <h1 contenteditable="true">新增頁面標題</h1>
+    <h2 class="subtitle" contenteditable="true">點此編輯頁面說明文字</h2>
+    <div class="content">
+      <div class="card">
+        <h3 contenteditable="true">點此編輯內容標題</h3>
+        <p contenteditable="true">請在此輸入內容文字。您也可以使用上方工具列的「🖼️ 插入照片」按鈕新增圖片，內容會自動即時同步給所有共編者。</p>
+      </div>
+      <div class="new-page-hint">這是您自行新增的頁面，不會出現在原始期中標準架構中。若不需要，可點本頁右上角「🗑 刪除此頁」移除。</div>
+    </div>
+  </div>
+  <button type="button" class="page-del-btn">🗑 刪除此頁</button>
+</div>`;
+}
+function addNewSlide(){
+  const html = makeNewSlideTemplate();
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html.trim();
+  const el = wrap.firstElementChild;
+  el.dataset.fbkey = 'new' + Date.now() + '_' + Math.floor(Math.random()*1000);
+  const insertAt = current + 1;
+  slideEls.splice(insertAt, 0, el);
+  deck.insertBefore(el, slideEls[insertAt+1] || null);
+  renumberSlides();
+  applyEditable(el);
+  rebuildSidebar();
+  rebuildDots();
+  if(db){ setupSlideSync(el); db.ref('meta/pageOrder').set(currentOrder()); }
+  goTo(insertAt);
+}
+function deleteSlide(slideEl){
+  if(!confirm('確定要刪除這張頁面嗎？此動作無法復原。')) return;
+  const idx = slideEls.indexOf(slideEl);
+  if(idx === -1) return;
+  const fbkey = slideEl.dataset.fbkey;
+  slideEls.splice(idx, 1);
+  slideEl.remove();
+  renumberSlides();
+  rebuildSidebar();
+  rebuildDots();
+  if(db){ db.ref('slides/'+fbkey).remove(); db.ref('meta/pageOrder').set(currentOrder()); }
+  goTo(Math.min(idx, slideEls.length-1));
+}
+document.getElementById('addPageBtn').addEventListener('click', addNewSlide);
 document.getElementById('photoInput').addEventListener('change', async (e)=>{
   const file = e.target.files[0];
   e.target.value = '';
