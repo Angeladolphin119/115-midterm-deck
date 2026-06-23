@@ -186,7 +186,10 @@ table.gov td[contenteditable="true"]:focus,table.gov th[contenteditable="true"]:
 #addPageBtn:hover{background:rgba(255,255,255,.25);}
 .page-del-btn{position:absolute;top:14px;right:14px;background:rgba(220,80,80,.14);color:#b23b3b;border:1px solid rgba(220,80,80,.35);border-radius:8px;padding:5px 12px;font-size:12.5px;cursor:pointer;z-index:5;}
 .page-del-btn:hover{background:rgba(220,80,80,.25);}
-.new-page-hint{font-size:13px;color:var(--text-muted);background:var(--card-bg);border-radius:10px;padding:14px 18px;margin-top:12px;}
+.new-page-hint{position:relative;font-size:13px;color:var(--text-muted);background:var(--card-bg);border-radius:10px;padding:14px 44px 14px 18px;margin-top:12px;}
+.card{position:relative;}
+.block-del-btn{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:rgba(20,26,69,.08);color:#5a6178;border:none;cursor:pointer;font-size:12px;line-height:1;}
+.block-del-btn:hover{background:rgba(220,80,80,.18);color:#b23b3b;}
 #fsBtn{background:rgba(255,255,255,.12);}
 #fsBtn:hover{background:rgba(255,255,255,.25);}
 #undoBtn{background:rgba(255,255,255,.12);}
@@ -1219,6 +1222,15 @@ deck.addEventListener('click', (e)=>{
     if(slideEl) deleteSlide(slideEl);
     return;
   }
+  const delBlock = e.target.closest('.block-del-btn');
+  if(delBlock){
+    const block = delBlock.closest('.card, .new-page-hint');
+    const slideEl = delBlock.closest('.slide');
+    if(slideEl) recordBeforeDelete(slideEl);
+    if(block) block.remove();
+    if(slideEl) slideEl.dispatchEvent(new Event('input', {bubbles:true}));
+    return;
+  }
 });
 document.getElementById('photoBtn').addEventListener('click', ()=>{
   document.getElementById('photoInput').click();
@@ -1234,10 +1246,14 @@ function makeNewSlideTemplate(){
     <h2 class="subtitle" contenteditable="true">點此編輯頁面說明文字</h2>
     <div class="content">
       <div class="card">
+        <button type="button" class="block-del-btn" contenteditable="false" title="刪除此區塊">✕</button>
         <h3 contenteditable="true">點此編輯內容標題</h3>
         <p contenteditable="true">請在此輸入內容文字。您也可以使用上方工具列的「🖼️ 插入照片」按鈕新增圖片，內容會自動即時同步給所有共編者。</p>
       </div>
-      <div class="new-page-hint">這是您自行新增的頁面，不會出現在原始期中標準架構中。若不需要，可點本頁右上角「🗑 刪除此頁」移除。</div>
+      <div class="new-page-hint">
+        <button type="button" class="block-del-btn" contenteditable="false" title="刪除此提示">✕</button>
+        這是您自行新增的頁面，不會出現在原始期中標準架構中。若不需要，可點本頁右上角「🗑 刪除此頁」移除。
+      </div>
     </div>
   </div>
   <button type="button" class="page-del-btn">🗑 刪除此頁</button>
@@ -1317,7 +1333,7 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
       clone.style.width = '1280px';
       clone.style.height = 'auto';
       clone.style.minHeight = '720px';
-      clone.querySelectorAll('.photo-del-btn, .photonote-close').forEach(n=>n.remove());
+      clone.querySelectorAll('.photo-del-btn, .photonote-close, .page-del-btn, .block-del-btn').forEach(n=>n.remove());
       stage.innerHTML = '';
       stage.appendChild(clone);
 
