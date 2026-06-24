@@ -906,6 +906,14 @@ function applyEditable(el){
 }
 slideEls.forEach(applyEditable);
 
+// Snapshot of each ORIGINAL slide's freshly-rendered content, captured before
+// any Firebase restore can overwrite it. Bumping DECK_CONTENT_VERSION below
+// causes this snapshot to be re-pushed to everyone on next load, so a content
+// fix in the code actually reaches collaborators instead of being masked by
+// whatever was previously saved at that slide's Firebase key.
+const DECK_CONTENT_VERSION = 2;
+const originalSyncHTML = slideEls.map(el => syncRoot(el).innerHTML);
+
 // ---- sidebar TOC (rebuildable so pages can be added later) ----
 const sbList = document.getElementById('sbList');
 let sbItems = [];
@@ -1049,7 +1057,26 @@ if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
 
-    slideEls.forEach(setupSlideSync);
+    // If the code's baseline content changed since this deck was last seeded,
+    // push the fresh template content for the original 24 slides to Firebase
+    // BEFORE anyone's setupSlideSync() reads it, so the update actually reaches
+    // every collaborator instead of being masked by the previously-saved value.
+    const versionRef = db.ref('meta/contentVersion');
+    versionRef.once('value').then(snap=>{
+      const stored = snap.exists() ? snap.val() : 0;
+      const writes = [];
+      if(stored < DECK_CONTENT_VERSION){
+        slideEls.forEach((el,idx)=>{
+          if(!String(el.dataset.fbkey).startsWith('new')){
+            writes.push(db.ref('slides/'+el.dataset.fbkey+'/html').set(originalSyncHTML[idx]));
+          }
+        });
+        writes.push(versionRef.set(DECK_CONTENT_VERSION));
+      }
+      return Promise.all(writes);
+    }).then(()=>{
+      slideEls.forEach(setupSlideSync);
+    });
 
     // Shared page order so a page added/removed by one collaborator appears
     // for everyone, not just the person who clicked the button.
