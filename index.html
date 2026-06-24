@@ -296,59 +296,59 @@ const SLIDES = [];
 
 // Shared illustration of common lab animals — mouse, rabbit, guinea pig, pig,
 // chicken, zebrafish — used on both the cover and closing slides for a
-// consistent visual identity. Rendered as a simplified single-ink-color
-// line sketch with light hatching (per design feedback), on a soft paper tint.
+// consistent visual identity. Colored hand-drawn line art with hatching for
+// shading, painted directly over the slide background (no paper card).
 const LAB_ANIMALS_SVG = `
 <svg class="lab-animals-art" viewBox="0 0 840 150" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="840" height="150" rx="16" fill="#FBF6EC"/>
   <g stroke="#4A4036" stroke-linejoin="round" stroke-linecap="round" fill="none" stroke-width="2.2">
     <!-- mouse -->
     <g transform="translate(20,14)">
       <path d="M82,86 Q102,80 98,62"/>
-      <circle cx="28" cy="18" r="12"/>
-      <circle cx="72" cy="18" r="12"/>
-      <ellipse cx="50" cy="78" rx="32" ry="26"/>
-      <circle cx="50" cy="40" r="26"/>
+      <circle cx="28" cy="18" r="12" fill="#C9BDB2"/>
+      <circle cx="72" cy="18" r="12" fill="#C9BDB2"/>
+      <circle cx="28" cy="18" r="6" fill="#E8B7C0" stroke="none"/>
+      <circle cx="72" cy="18" r="6" fill="#E8B7C0" stroke="none"/>
+      <ellipse cx="50" cy="78" rx="32" ry="26" fill="#D7CCC0"/>
+      <circle cx="50" cy="40" r="26" fill="#D7CCC0"/>
       <circle cx="40" cy="39" r="2.6" fill="#4A4036" stroke="none"/>
       <circle cx="60" cy="39" r="2.6" fill="#4A4036" stroke="none"/>
-      <ellipse cx="50" cy="50" rx="2.8" ry="2" fill="#4A4036" stroke="none"/>
+      <ellipse cx="50" cy="50" rx="2.8" ry="2" fill="#E8919C" stroke="none"/>
       <path d="M22,49 L8,46 M22,52 L7,53 M22,55 L9,60"/>
       <path d="M78,49 L92,46 M78,52 L93,53 M78,55 L91,60"/>
-      <path d="M22,16 Q28,22 33,17 M67,17 Q72,22 78,16" stroke-width="1.3"/>
       <path d="M32,92 L40,96 M40,90 L48,94 M48,93 L56,97" stroke-width="1.3"/>
     </g>
     <!-- rabbit -->
     <g transform="translate(155,10)">
-      <circle cx="78" cy="104" r="8"/>
-      <g transform="rotate(-12 34 20)"><ellipse cx="34" cy="20" rx="9" ry="21"/><path d="M34,8 L34,32" stroke-width="1.3"/></g>
-      <g transform="rotate(12 66 20)"><ellipse cx="66" cy="20" rx="9" ry="21"/><path d="M66,8 L66,32" stroke-width="1.3"/></g>
-      <ellipse cx="50" cy="94" rx="30" ry="24"/>
-      <circle cx="50" cy="54" r="25"/>
+      <circle cx="78" cy="104" r="8" fill="#F2E9DC"/>
+      <g transform="rotate(-12 34 20)"><ellipse cx="34" cy="20" rx="9" ry="21" fill="#F2E9DC"/><ellipse cx="34" cy="20" rx="4" ry="13" fill="#E8B7C0" stroke="none"/></g>
+      <g transform="rotate(12 66 20)"><ellipse cx="66" cy="20" rx="9" ry="21" fill="#F2E9DC"/><ellipse cx="66" cy="20" rx="4" ry="13" fill="#E8B7C0" stroke="none"/></g>
+      <ellipse cx="50" cy="94" rx="30" ry="24" fill="#F2E9DC"/>
+      <circle cx="50" cy="54" r="25" fill="#F2E9DC"/>
       <circle cx="40" cy="53" r="2.6" fill="#4A4036" stroke="none"/>
       <circle cx="60" cy="53" r="2.6" fill="#4A4036" stroke="none"/>
-      <ellipse cx="50" cy="63" rx="2.8" ry="2" fill="#4A4036" stroke="none"/>
+      <ellipse cx="50" cy="63" rx="2.8" ry="2" fill="#E8919C" stroke="none"/>
       <path d="M30,86 L38,90 M40,84 L48,88" stroke-width="1.3"/>
     </g>
     <!-- guinea pig -->
     <g transform="translate(290,18)">
-      <circle cx="31" cy="24" r="6.5"/>
-      <circle cx="69" cy="24" r="6.5"/>
-      <ellipse cx="50" cy="76" rx="36" ry="28"/>
-      <path d="M22,70 Q50,98 78,70" stroke-width="1.3"/>
-      <circle cx="50" cy="42" r="27"/>
+      <circle cx="31" cy="24" r="6.5" fill="#B98654"/>
+      <circle cx="69" cy="24" r="6.5" fill="#B98654"/>
+      <ellipse cx="50" cy="76" rx="36" ry="28" fill="#B98654"/>
+      <path d="M22,70 Q50,98 78,70" fill="#E9D2B0" stroke-width="1.3"/>
+      <circle cx="50" cy="42" r="27" fill="#B98654"/>
       <circle cx="39" cy="41" r="2.6" fill="#4A4036" stroke="none"/>
       <circle cx="61" cy="41" r="2.6" fill="#4A4036" stroke="none"/>
-      <ellipse cx="50" cy="52" rx="2.7" ry="2" fill="#4A4036" stroke="none"/>
+      <ellipse cx="50" cy="52" rx="2.7" ry="2" fill="#6B4A2C" stroke="none"/>
       <path d="M20,60 L28,64 M22,52 L30,56" stroke-width="1.3"/>
     </g>
     <!-- pig -->
     <g transform="translate(425,16)">
-      <path d="M82,84 Q96,78 90,68 Q86,74 82,84 Z"/>
-      <path d="M26,22 L18,4 L38,16 Z"/>
-      <path d="M74,22 L82,4 L62,16 Z"/>
-      <ellipse cx="50" cy="80" rx="34" ry="27"/>
-      <circle cx="50" cy="44" r="26"/>
-      <ellipse cx="50" cy="52" rx="14" ry="10"/>
+      <path d="M82,84 Q96,78 90,68 Q86,74 82,84 Z" fill="#F2B6C6"/>
+      <path d="M26,22 L18,4 L38,16 Z" fill="#F2B6C6"/>
+      <path d="M74,22 L82,4 L62,16 Z" fill="#F2B6C6"/>
+      <ellipse cx="50" cy="80" rx="34" ry="27" fill="#F2B6C6"/>
+      <circle cx="50" cy="44" r="26" fill="#F2B6C6"/>
+      <ellipse cx="50" cy="52" rx="14" ry="10" fill="#E8919C"/>
       <circle cx="45" cy="52" r="1.6" fill="#4A4036" stroke="none"/>
       <circle cx="55" cy="52" r="1.6" fill="#4A4036" stroke="none"/>
       <circle cx="38" cy="40" r="2.6" fill="#4A4036" stroke="none"/>
@@ -357,28 +357,28 @@ const LAB_ANIMALS_SVG = `
     </g>
     <!-- chicken -->
     <g transform="translate(560,14)">
-      <path d="M40,108 L38,124 M38,124 L33,124 M38,124 L43,124"/>
-      <path d="M60,108 L62,124 M62,124 L57,124 M62,124 L67,124"/>
-      <path d="M42,20 Q42,12 48,14 Q44,16 46,20"/>
-      <path d="M50,16 Q50,6 56,9 Q51,12 53,17"/>
-      <path d="M58,20 Q60,12 65,15 Q60,16 60,20"/>
-      <ellipse cx="50" cy="82" rx="28" ry="26"/>
-      <circle cx="50" cy="42" r="22"/>
-      <path d="M46,56 Q50,64 54,56 Z"/>
-      <path d="M43,48 L57,48 L50,57 Z"/>
+      <path d="M40,108 L38,124 M38,124 L33,124 M38,124 L43,124" stroke="#E0A458"/>
+      <path d="M60,108 L62,124 M62,124 L57,124 M62,124 L67,124" stroke="#E0A458"/>
+      <path d="M42,20 Q42,12 48,14 Q44,16 46,20 Z" fill="#D9534F"/>
+      <path d="M50,16 Q50,6 56,9 Q51,12 53,17 Z" fill="#D9534F"/>
+      <path d="M58,20 Q60,12 65,15 Q60,16 60,20 Z" fill="#D9534F"/>
+      <ellipse cx="50" cy="82" rx="28" ry="26" fill="#F5EFE0"/>
+      <circle cx="50" cy="42" r="22" fill="#F5EFE0"/>
+      <path d="M46,56 Q50,64 54,56 Z" fill="#D9534F"/>
+      <path d="M43,48 L57,48 L50,57 Z" fill="#E0A458"/>
       <circle cx="40" cy="38" r="2.4" fill="#4A4036" stroke="none"/>
       <circle cx="60" cy="38" r="2.4" fill="#4A4036" stroke="none"/>
       <path d="M28,68 L36,72 M30,60 L38,64" stroke-width="1.3"/>
     </g>
     <!-- zebrafish -->
     <g transform="translate(695,40)">
-      <path d="M95,40 L118,24 L118,56 L95,46 Z"/>
-      <path d="M52,18 L62,4 L68,20 Z"/>
-      <path d="M15,40 Q35,8 78,22 Q98,30 98,40 Q98,50 78,58 Q35,72 15,40 Z"/>
+      <path d="M95,40 L118,24 L118,56 L95,46 Z" fill="#9FD4E8"/>
+      <path d="M52,18 L62,4 L68,20 Z" fill="#9FD4E8"/>
+      <path d="M15,40 Q35,8 78,22 Q98,30 98,40 Q98,50 78,58 Q35,72 15,40 Z" fill="#9FD4E8"/>
       <path d="M30,22 Q34,40 30,58" stroke-width="1.6"/>
       <path d="M48,16 Q53,40 48,64" stroke-width="1.6"/>
       <path d="M66,18 Q70,40 66,62" stroke-width="1.6"/>
-      <circle cx="30" cy="36" r="5"/>
+      <circle cx="30" cy="36" r="5" fill="#FFFFFF"/>
       <circle cx="31" cy="36" r="2" fill="#4A4036" stroke="none"/>
       <path d="M16,42 Q20,46 24,43" stroke-width="1.4"/>
     </g>
