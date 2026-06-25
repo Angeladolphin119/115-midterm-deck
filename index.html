@@ -1061,19 +1061,25 @@ if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
     // push the fresh template content for the original 24 slides to Firebase
     // BEFORE anyone's setupSlideSync() reads it, so the update actually reaches
     // every collaborator instead of being masked by the previously-saved value.
+    // SAFETY: any slide a human has actually edited is flagged "edited" (see
+    // the input handler below) and is permanently skipped here — a code-side
+    // content fix never overwrites someone's real work.
     const versionRef = db.ref('meta/contentVersion');
     versionRef.once('value').then(snap=>{
       const stored = snap.exists() ? snap.val() : 0;
-      const writes = [];
-      if(stored < DECK_CONTENT_VERSION){
-        slideEls.forEach((el,idx)=>{
-          if(!String(el.dataset.fbkey).startsWith('new')){
-            writes.push(db.ref('slides/'+el.dataset.fbkey+'/html').set(originalSyncHTML[idx]));
+      if(stored >= DECK_CONTENT_VERSION) return null;
+      const checks = slideEls.map((el,idx)=>{
+        const fbkey = el.dataset.fbkey;
+        if(String(fbkey).startsWith('new')) return null;
+        return db.ref('slides/'+fbkey+'/edited').once('value').then(s=>{
+          if(s.exists() && s.val() === true){
+            console.log('[content-version] skipping slide '+fbkey+' — has human edits, protected from auto-reseed');
+            return null;
           }
+          return db.ref('slides/'+fbkey+'/html').set(originalSyncHTML[idx]);
         });
-        writes.push(versionRef.set(DECK_CONTENT_VERSION));
-      }
-      return Promise.all(writes);
+      });
+      return Promise.all(checks).then(()=> versionRef.set(DECK_CONTENT_VERSION));
     }).then(()=>{
       slideEls.forEach(setupSlideSync);
     });
@@ -1097,6 +1103,9 @@ if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
       clearTimeout(saveTimers[fbkey]);
       saveTimers[fbkey] = setTimeout(()=>{
         db.ref('slides/'+fbkey+'/html').set(syncRoot(slideEl).innerHTML);
+        // Mark this slide as human-edited so a future content-version bump
+        // (see DECK_CONTENT_VERSION below) never overwrites it automatically.
+        db.ref('slides/'+fbkey+'/edited').set(true);
         saveStatusEl.textContent = '已即時同步給所有人';
       }, 450);
     });
